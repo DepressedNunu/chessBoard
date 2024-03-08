@@ -1,4 +1,6 @@
 import tkinter as tk
+import numpy
+from Models.piece import *
 
 
 class ChessSquare(tk.Canvas):
@@ -18,22 +20,27 @@ class ChessSquare(tk.Canvas):
 
 
 class ChessBoard(tk.Frame):
-    chessboard = [
-        [-2, -3, -4, -5, -6, -4, -3, -2],
-        [-1, -1, -1, -1, -1, -1, -1, -1],
-        [0, 0, 0, 0, 0, 0, 0, 0],
-        [0, 0, 0, 0, 0, 0, 0, 0],
-        [0, 0, 0, 0, 0, 0, 0, 0],
-        [0, 0, 0, 0, 0, 0, 0, 0],
-        [1, 1, 1, 1, 1, 1, 1, 1],
-        [2, 3, 4, 5, 6, 4, 3, 2],
-    ]
+    chessData = numpy.array([[0 for i in range(8)] for j in range(8)])
 
+    def place_piece(self, piece: Piece):
+        self.chessData[piece.position[1]][piece.position[0]] = piece.pieceType.value
     def __init__(self, root):
         super().__init__(root)
         self.root = root
         self.create_board()
 
+    def move_piece(self, piece: Piece, new_position: tuple):
+        if self.validate_move(piece, new_position):
+            self.chessData[piece.position[1]][piece.position[0]] = 0
+            piece.move(new_position)
+            self.chessData[new_position[1]][new_position[0]] = piece.pieceType.value
+
+    def validate_move(self, piece: Piece, new_position: tuple):
+        return True
+
+    def display_board(self):
+        for row in self.chessData:
+            print(row)
     def create_board(self):
         for i in range(8):
             for j in range(8):
