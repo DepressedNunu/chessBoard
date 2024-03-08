@@ -1,59 +1,23 @@
 import tkinter as tk
+import numpy
+from Models.piece import *
 
 
 class ChessBoard(tk.Frame):
-    chessboard = [
-        [-2, -3, -4, -5, -6, -4, -3, -2],
-        [-1, -1, -1, -1, -1, -1, -1, -1],
-        [0, 0, 0, 0, 0, 0, 0, 0],
-        [0, 0, 0, 0, 0, 0, 0, 0],
-        [0, 0, 0, 0, 0, 0, 0, 0],
-        [0, 0, 0, 0, 0, 0, 0, 0],
-        [1, 1, 1, 1, 1, 1, 1, 1],
-        [2, 3, 4, 5, 6, 4, 3, 2],
-    ]
+    chessData = numpy.array([[0 for i in range(8)] for j in range(8)])
 
-    def __init__(self, root):
-        super().__init__()
-        self.root = root
-        self.canvas = tk.Canvas(root, width=400, height=400)
-        self.canvas.pack()
-        self.draw_board_cases()
+    def place_piece(self, piece: Piece):
+        self.chessData[piece.position[1]][piece.position[0]] = piece.pieceType.value
 
-    def draw_board_cases(self):
-        for i in range(8):
-            for j in range(8):
-                if (i + j) % 2 == 0:
-                    self.canvas.create_rectangle(i * 50, j * 50, (i + 1) * 50, (j + 1) * 50, fill="white")
-                else:
-                    self.canvas.create_rectangle(i * 50, j * 50, (i + 1) * 50, (j + 1) * 50, fill="black")
+    def move_piece(self, piece: Piece, new_position: tuple):
+        if self.validate_move(piece, new_position):
+            self.chessData[piece.position[1]][piece.position[0]] = 0
+            piece.move(new_position)
+            self.chessData[new_position[1]][new_position[0]] = piece.pieceType.value
 
-    def link_pieces_to_board(self):
-        for i in range(8):
-            for j in range(8):
-                if self.chessboard[i][j] == -2:
-                    self.canvas.create_image(i * 50, j * 50, image=self.black_tower)
-                elif self.chessboard[i][j] == -3:
-                    self.canvas.create_image(i * 50, j * 50, image=self.black_bishop)
-                elif self.chessboard[i][j] == -4:
-                    self.canvas.create_image(i * 50, j * 50, image=self.black_horse)
-                elif self.chessboard[i][j] == -5:
-                    self.canvas.create_image(i * 50, j * 50, image=self.black_queen)
-                elif self.chessboard[i][j] == -6:
-                    self.canvas.create_image(i * 50, j * 50, image=self.black_king)
-                elif self.chessboard[i][j] == -1:
-                    self.canvas.create_image(i * 50, j * 50, image=self.black_pawn)
-                elif self.chessboard[i][j] == 1:
-                    self.canvas.create_image(i * 50, j * 50, image=self.white_pawn)
-                elif self.chessboard[i][j] == 2:
-                    self.canvas.create_image(i * 50, j * 50, image=self.white_tower)
-                elif self.chessboard[i][j] == 3:
-                    self.canvas.create_image(i * 50, j * 50, image=self.white_bishop)
-                elif self.chessboard[i][j] == 4:
-                    self.canvas.create_image(i * 50, j * 50, image=self.white_horse)
-                elif self.chessboard[i][j] == 5:
-                    self.canvas.create_image(i * 50, j * 50, image=self.white_queen)
-                elif self.chessboard[i][j] == 6:
-                    self.canvas.create_image(i * 50, j * 50, image=self.white_king)
-                else:
-                    pass
+    def validate_move(self, piece: Piece, new_position: tuple):
+        return True
+
+    def display_board(self):
+        for row in self.chessData:
+            print(row)
