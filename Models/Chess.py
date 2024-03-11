@@ -1,6 +1,5 @@
 import numpy
 import tkinter as tk
-
 import numpy as np
 from PIL import Image, ImageTk
 from Models.piece import *
@@ -12,7 +11,9 @@ class ChessSquare(tk.Canvas):
         self.piece = piece
 
 
-class ChessBoard (tk.Frame):
+class ChessBoard(tk.Frame):
+    is_highlighted = False
+    pieceClicked = False
 
     def __init__(self):
         super().__init__()
@@ -49,9 +50,12 @@ class ChessBoard (tk.Frame):
             Piece(PieceType.kingWhite, (7, 4)),
             Piece(PieceType.bishopWhite, (7, 5)),
             Piece(PieceType.knightWhite, (7, 6)),
-            Piece(PieceType.rookWhite, (7, 7))
+            Piece(PieceType.rookWhite, (7, 7)),
+
+            #test purposes
+            Piece(PieceType.pawnBlack, (5, 3))
         ]
-        self.chessData = np.array([[None for i in range(8)] for j in range(8)])
+        self.chessData = np.array([[None for i in range(8)] for j in range(8)])  # Keep track of the pieces class
         for piece in self.pieces_list:
             self.place_piece(piece)
         self.chessSquares = [[None] * 8 for _ in range(8)]  # Keep track of ChessSquare instances
@@ -64,40 +68,55 @@ class ChessBoard (tk.Frame):
         piece.move(new_position)
         self.chessData[new_position[0]][new_position[1]] = piece
 
-    def possible_moves(self, piece: Piece):
-        possibleMoves = []
+    def possible_moves(self, piece: Piece, chess_data):
+        possible_moves = []
+
+        def is_valid_position(row, col):
+            return 0 <= row < 8 and 0 <= col < 8
+
+        def is_empty_square(row, col):
+            return is_valid_position(row, col) and chess_data[row][col] is None
+
+        def is_enemy_piece(row, col, color):
+            return is_valid_position(row, col) and chess_data[row][col] is not None and chess_data[row][col].color != color
+
+        row, col = piece.position
+
         if piece.pieceType == PieceType.pawnWhite:
-            if piece.position[0] == 6:  # if the pawn is in the starting position
-                possibleMoves.append((piece.position[0] - 2, piece.position[1]))
+            # Check forward moves
+            if is_empty_square(row - 1, col):
+                possible_moves.append((row - 1, col))
+                if row == 6 and is_empty_square(row - 2, col):
+                    possible_moves.append((row - 2, col))
 
-            if piece.position[0] - 1 >= 0:  # if the pawn is not at the top of the board
-                possibleMoves.append((piece.position[0] - 1, piece.position[1]))
+            # Check diagonal captures
+            if is_enemy_piece(row - 1, col - 1, "red"):
+                possible_moves.append((row - 1, col - 1))
+            if is_enemy_piece(row - 1, col + 1, "red"):
+                possible_moves.append((row - 1, col + 1))
 
-            if piece.position[0] - 1 >= 0 and piece.position[1] - 1 >= 0:  # if the pawn is not at the top of the board and not at the left of the board
-                possibleMoves.append((piece.position[0] - 1, piece.position[1] - 1))
-
-            if piece.position[0] - 1 >= 0 and piece.position[1] + 1 < 8:  # if the pawn is not at the top of the board and not at the right of the board
-                possibleMoves.append((piece.position[0] - 1, piece.position[1] + 1))
-
-        print(possibleMoves)
-        self.highlight_moves(possibleMoves)
-        return possibleMoves
+        self.highlight_moves(possible_moves)
+        return possible_moves
 
     def highlight_moves(self, moves):
+        if self.is_highlighted:
+            self.unhighlight_moves()
         for move in moves:
             row, col = move
             self.chessSquares[row][col].config(bg="green")
+            self.is_highlighted = True
 
-    def unhighlight_moves(self, moves):
-        for move in moves:
-            row, col = move
-            if (row + col) % 2 == 0:
-                color = "white"
-            else:
-                color = "black"
-            self.chessSquares[row][col].config(bg=color)
+    def unhighlight_moves(self):
+        print("unhighlighting")
+        for i in range(8):
+            for j in range(8):
+                if (i + j) % 2 == 0:
+                    color = "white"
+                else:
+                    color = "black"
+                self.chessSquares[i][j].config(bg=color)
 
-    def draw_board(self, root):
+    def draw_board(self, root, pieceClicked=False):
         for i in range(8):
             for j in range(8):
                 if (i + j) % 2 == 0:
@@ -107,14 +126,15 @@ class ChessBoard (tk.Frame):
                 if self.chessData[i][j] is not None:
                     piece = self.chessData[i][j]
                     img = ImageTk.PhotoImage(Image.open(piece.path))
-                    square = ChessSquare(root, color, piece= piece)
+                    square = ChessSquare(root, color, piece=piece)
                     square.create_image(50, 50, anchor=tk.CENTER, image=img)
                     square.image = img  # Keep a reference to the image to prevent garbage collection
-                    square.bind("<Button-1>", lambda event, p= piece: self.possible_moves(p))
+                    square.bind("<Button-1>", lambda event, p=piece: self.possible_moves(p, self.chessData)) # Detect clicks
                     square.grid(row=i, column=j)
                     self.chessSquares[i][j] = square
                 else:
                     square = ChessSquare(root, color)
                     square.grid(row=i, column=j)
                     self.chessSquares[i][j] = square
+                    square.bind("<Button-1>", lambda event, p=piece: self.possible_moves(p, self.chessData)) # Detect clicks
         root.mainloop()
