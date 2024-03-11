@@ -9,6 +9,8 @@ if __name__ == '__main__':
     board = ChessBoard()
     board.display_board()
     print("\n===========================================\n")
-    pawn = Piece(PieceType.pawnBlack, (1, 1))
-    print(pawn.pieceType.value)
-    print(pawn.path)
+
+    board.display_board()
+    currentPiece = board.get_piece_at_position((0, 1))
+    board.move_piece(currentPiece, (0, 3))
+    print("\n===========================================\n")
