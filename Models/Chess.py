@@ -52,7 +52,7 @@ class ChessBoard(tk.Frame):
             Piece(PieceType.knightWhite, (7, 6)),
             Piece(PieceType.rookWhite, (7, 7)),
 
-            #test purposes
+            # test purposes
             Piece(PieceType.pawnBlack, (5, 3))
         ]
         self.chessData = np.array([[None for i in range(8)] for j in range(8)])  # Keep track of the pieces class
@@ -78,22 +78,117 @@ class ChessBoard(tk.Frame):
             return is_valid_position(row, col) and chess_data[row][col] is None
 
         def is_enemy_piece(row, col, color):
-            return is_valid_position(row, col) and chess_data[row][col] is not None and chess_data[row][col].color != color
+            return is_valid_position(row, col) and chess_data[row][col] is not None and chess_data[row][
+                col].color != color
+
+        def is_ally_piece(row, col, color):
+            return is_valid_position(row, col) and chess_data[row][col] is not None and chess_data[row][
+                col].color == color
 
         row, col = piece.position
 
         if piece.pieceType == PieceType.pawnWhite:
-            # Check forward moves
             if is_empty_square(row - 1, col):
                 possible_moves.append((row - 1, col))
                 if row == 6 and is_empty_square(row - 2, col):
                     possible_moves.append((row - 2, col))
 
-            # Check diagonal captures
-            if is_enemy_piece(row - 1, col - 1, "red"):
+            if is_enemy_piece(row - 1, col - 1, "black"):
                 possible_moves.append((row - 1, col - 1))
-            if is_enemy_piece(row - 1, col + 1, "red"):
+            if is_enemy_piece(row - 1, col + 1, "black"):
                 possible_moves.append((row - 1, col + 1))
+
+        if piece.pieceType == PieceType.pawnBlack:
+            if is_empty_square(row + 1, col):
+                possible_moves.append((row + 1, col))
+                if row == 1 and is_empty_square(row + 2, col):
+                    possible_moves.append((row + 2, col))
+
+            if is_enemy_piece(row + 1, col - 1, "white"):
+                possible_moves.append((row + 1, col - 1))
+            if is_enemy_piece(row + 1, col + 1, "white"):
+                possible_moves.append((row + 1, col + 1))
+
+        if piece.pieceType == PieceType.rookBlack or piece.pieceType == PieceType.rookWhite:
+            for coef1, coef2 in [(1, 0), (-1, 0), (0, 1), (0, -1)]:
+                for x in range(1, 8):
+                    for y in range(1, 8):
+                        if is_empty_square(row + x * coef1, col + y * coef2):
+                            possible_moves.append((row + x * coef1, col + y * coef2))
+                        elif is_ally_piece(row + x * coef1, col + y * coef2, piece.color):
+                            break
+                        else:
+                            if is_enemy_piece(row + x * coef1, col + y * coef2, piece.not_color):
+                                possible_moves.append((row + x * coef1, col + y * coef2))
+                            break
+                        break
+                    break
+        if piece.pieceType == PieceType.knightBlack or piece.pieceType == PieceType.knightWhite:
+            for coef1, coef2 in [(1, 2), (-1, 2), (1, -2), (-1, -2), (2, 1), (-2, 1), (2, -1), (-2, -1)]:
+                if is_empty_square(row + coef1, col + coef2):
+                    possible_moves.append((row + coef1, col + coef2))
+                elif is_ally_piece(row + coef1, col + coef2, piece.color):
+                    break
+                else:
+                    if is_enemy_piece(row + coef1, col + coef2, piece.not_color):
+                        possible_moves.append((row + coef1, col + coef2))
+                    break
+                break
+
+        if piece.pieceType == PieceType.bishopBlack or piece.pieceType == PieceType.bishopWhite:
+            for coef1, coef2 in [(1, 1), (-1, 1), (1, -1), (-1, -1)]:
+                for i in range(1, 8):
+                    for j in range(1, 8):
+                        if is_empty_square(row + i * coef1, col + j * coef2):
+                            possible_moves.append((row + i * coef1, col + j * coef2))
+                        elif is_ally_piece(row + i * coef1, col + j * coef2, piece.color):
+                            break
+                        else:
+                            if is_enemy_piece(row + i * coef1, col + j * coef2, piece.not_color):
+                                possible_moves.append((row + i * coef1, col + j * coef2))
+                            break
+                        break
+                    break
+
+        if piece.pieceType == PieceType.queenBlack or piece.pieceType == PieceType.queenWhite:
+            for coef1, coef2 in [(1, 0), (-1, 0), (0, 1), (0, -1)]:
+                for x in range(1, 8):
+                    for y in range(1, 8):
+                        if is_empty_square(row + x * coef1, col + y * coef2):
+                            possible_moves.append((row + x * coef1, col + y * coef2))
+                        elif is_ally_piece(row + x * coef1, col + y * coef2, piece.color):
+                            break
+                        else:
+                            if is_enemy_piece(row + x * coef1, col + y * coef2, piece.not_color):
+                                possible_moves.append((row + x * coef1, col + y * coef2))
+                            break
+                        break
+                    break
+            for coef1, coef2 in [(1, 1), (-1, 1), (1, -1), (-1, -1)]:
+                for i in range(1, 8):
+                    for j in range(1, 8):
+                        if is_empty_square(row + i * coef1, col + j * coef2):
+                            possible_moves.append((row + i * coef1, col + j * coef2))
+                        elif is_ally_piece(row + i * coef1, col + j * coef2, piece.color):
+                            break
+                        else:
+                            if is_enemy_piece(row + i * coef1, col + j * coef2, piece.not_color):
+                                possible_moves.append((row + i * coef1, col + j * coef2))
+                            break
+                        break
+                    break
+
+        if piece.pieceType == PieceType.kingBlack or piece.pieceType == PieceType.kingWhite:
+            for coef1, coef2 in [(1, 0), (-1, 0), (0, 1), (0, -1), (1, 1), (-1, 1), (1, -1), (-1, -1)]:
+                if is_empty_square(row + coef1, col + coef2):
+                    possible_moves.append((row + coef1, col + coef2))
+                elif is_ally_piece(row + coef1, col + coef2, piece.color):
+                    break
+                else:
+                    if is_enemy_piece(row + coef1, col + coef2, piece.not_color):
+                        possible_moves.append((row + coef1, col + coef2))
+                    break
+                break
 
         self.highlight_moves(possible_moves)
         return possible_moves
@@ -107,7 +202,6 @@ class ChessBoard(tk.Frame):
             self.is_highlighted = True
 
     def unhighlight_moves(self):
-        print("unhighlighting")
         for i in range(8):
             for j in range(8):
                 if (i + j) % 2 == 0:
@@ -129,12 +223,14 @@ class ChessBoard(tk.Frame):
                     square = ChessSquare(root, color, piece=piece)
                     square.create_image(50, 50, anchor=tk.CENTER, image=img)
                     square.image = img  # Keep a reference to the image to prevent garbage collection
-                    square.bind("<Button-1>", lambda event, p=piece: self.possible_moves(p, self.chessData)) # Detect clicks
+                    square.bind("<Button-1>",
+                                lambda event, p=piece: self.possible_moves(p, self.chessData))  # Detect clicks
                     square.grid(row=i, column=j)
                     self.chessSquares[i][j] = square
                 else:
                     square = ChessSquare(root, color)
                     square.grid(row=i, column=j)
                     self.chessSquares[i][j] = square
-                    square.bind("<Button-1>", lambda event, p=piece: self.possible_moves(p, self.chessData)) # Detect clicks
+                    square.bind("<Button-1>",
+                                lambda event, p=piece: self.possible_moves(p, self.chessData))  # Detect clicks
         root.mainloop()
