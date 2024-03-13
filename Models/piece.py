@@ -21,7 +21,6 @@ class Piece:
     position = tuple()
     path = str()
     color = str()
-    not_color = str()
 
     def __getitem__(self, item):
         return self
@@ -44,11 +43,9 @@ class Piece:
         if pieceType.value < 0:
             self.path = pathList[abs(pieceType.value) - 1]  # only the white pieces are negative
             self.color = "black"
-            self.not_color = "white"
         else:
             self.path = pathList[abs(pieceType.value) - 1 + 6]
             self.color = "white"
-            self.not_color = "black"
         self.pieceType = pieceType
         self.position = position
 
