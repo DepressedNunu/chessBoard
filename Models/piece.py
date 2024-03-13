@@ -42,10 +42,10 @@ class Piece:
         ]
         if pieceType.value < 0:
             self.path = pathList[abs(pieceType.value) - 1]  # only the white pieces are negative
-            self.color = "white"
+            self.color = "black"
         else:
             self.path = pathList[abs(pieceType.value) - 1 + 6]
-            self.color = "black"
+            self.color = "white"
         self.pieceType = pieceType
         self.position = position
 

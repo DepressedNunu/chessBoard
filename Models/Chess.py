@@ -13,10 +13,12 @@ class ChessSquare(tk.Canvas):
 
 class ChessBoard(tk.Frame):
     is_highlighted = False
-    pieceClicked = False
 
     def __init__(self):
         super().__init__()
+        self.possible_moves_list = None
+        self.new_position = None
+        self.lastSelectedPiece = None
         self.image = None
         self.pieces_list = [
             Piece(PieceType.rookBlack, (0, 0)),
@@ -52,9 +54,11 @@ class ChessBoard(tk.Frame):
             Piece(PieceType.knightWhite, (7, 6)),
             Piece(PieceType.rookWhite, (7, 7)),
 
-            #test purposes
+            # test purposes
             Piece(PieceType.pawnBlack, (5, 3))
         ]
+        self.white_square = "#18D9AC"
+        self.black_square = "#BED8D2"
         self.chessData = np.array([[None for i in range(8)] for j in range(8)])  # Keep track of the pieces class
         for piece in self.pieces_list:
             self.place_piece(piece)
@@ -63,39 +67,128 @@ class ChessBoard(tk.Frame):
     def place_piece(self, piece: Piece):
         self.chessData[piece.position[0]][piece.position[1]] = piece
 
-    def move_piece(self, piece: Piece, new_position: tuple):
-        self.chessData[piece.position[0]][piece.position[1]] = None
-        piece.move(new_position)
-        self.chessData[new_position[0]][new_position[1]] = piece
-
-    def possible_moves(self, piece: Piece, chess_data):
+    def possible_moves(self, piece: Piece):
         possible_moves = []
 
         def is_valid_position(row, col):
             return 0 <= row < 8 and 0 <= col < 8
 
         def is_empty_square(row, col):
-            return is_valid_position(row, col) and chess_data[row][col] is None
+            return is_valid_position(row, col) and self.chessData[row][col] is None
 
         def is_enemy_piece(row, col, color):
-            return is_valid_position(row, col) and chess_data[row][col] is not None and chess_data[row][col].color != color
+            return is_valid_position(row, col) and self.chessData[row][col] is not None and self.chessData[row][
+                col].color != color
+
+        def is_ally_piece(row, col, color):
+            return is_valid_position(row, col) and self.chessData[row][col] is not None and self.chessData[row][
+                col].color == color
 
         row, col = piece.position
 
         if piece.pieceType == PieceType.pawnWhite:
-            # Check forward moves
             if is_empty_square(row - 1, col):
                 possible_moves.append((row - 1, col))
                 if row == 6 and is_empty_square(row - 2, col):
                     possible_moves.append((row - 2, col))
 
-            # Check diagonal captures
-            if is_enemy_piece(row - 1, col - 1, "red"):
+            if is_enemy_piece(row - 1, col - 1, "black"):
                 possible_moves.append((row - 1, col - 1))
-            if is_enemy_piece(row - 1, col + 1, "red"):
+            if is_enemy_piece(row - 1, col + 1, "black"):
                 possible_moves.append((row - 1, col + 1))
 
-        self.highlight_moves(possible_moves)
+        if piece.pieceType == PieceType.pawnBlack:
+            if is_empty_square(row + 1, col):
+                possible_moves.append((row + 1, col))
+                if row == 1 and is_empty_square(row + 2, col):
+                    possible_moves.append((row + 2, col))
+
+            if is_enemy_piece(row + 1, col - 1, "white"):
+                possible_moves.append((row + 1, col - 1))
+            if is_enemy_piece(row + 1, col + 1, "white"):
+                possible_moves.append((row + 1, col + 1))
+
+        if piece.pieceType == PieceType.rookBlack or piece.pieceType == PieceType.rookWhite:
+            for coef1, coef2 in [(1, 0), (-1, 0), (0, 1), (0, -1)]:
+                for x in range(1, 8):
+                    for y in range(1, 8):
+                        if is_empty_square(row + x * coef1, col + y * coef2):
+                            possible_moves.append((row + x * coef1, col + y * coef2))
+                        elif is_ally_piece(row + x * coef1, col + y * coef2, piece.color):
+                            break
+                        else:
+                            if is_enemy_piece(row + x * coef1, col + y * coef2):
+                                possible_moves.append((row + x * coef1, col + y * coef2))
+                            break
+                        break
+                    break
+        if piece.pieceType == PieceType.knightBlack or piece.pieceType == PieceType.knightWhite:
+            for coef1, coef2 in [(1, 2), (-1, 2), (1, -2), (-1, -2), (2, 1), (-2, 1), (2, -1), (-2, -1)]:
+                if is_empty_square(row + coef1, col + coef2):
+                    possible_moves.append((row + coef1, col + coef2))
+                elif is_ally_piece(row + coef1, col + coef2, piece.color):
+                    break
+                else:
+                    if is_enemy_piece(row + coef1, col + coef2, piece.color):
+                        possible_moves.append((row + coef1, col + coef2))
+                    break
+                break
+
+        if piece.pieceType == PieceType.bishopBlack or piece.pieceType == PieceType.bishopWhite:
+            for coef1, coef2 in [(1, 1), (-1, 1), (1, -1), (-1, -1)]:
+                for i in range(1, 8):
+                    for j in range(1, 8):
+                        if is_empty_square(row + i * coef1, col + j * coef2):
+                            possible_moves.append((row + i * coef1, col + j * coef2))
+                        elif is_ally_piece(row + i * coef1, col + j * coef2, piece.color):
+                            break
+                        else:
+                            if is_enemy_piece(row + i * coef1, col + j * coef2):
+                                possible_moves.append((row + i * coef1, col + j * coef2))
+                            break
+                        break
+                    break
+
+        if piece.pieceType == PieceType.queenBlack or piece.pieceType == PieceType.queenWhite:
+            for coef1, coef2 in [(1, 0), (-1, 0), (0, 1), (0, -1)]:
+                for x in range(1, 8):
+                    for y in range(1, 8):
+                        if is_empty_square(row + x * coef1, col + y * coef2):
+                            possible_moves.append((row + x * coef1, col + y * coef2))
+                        elif is_ally_piece(row + x * coef1, col + y * coef2, piece.color):
+                            break
+                        else:
+                            if is_enemy_piece(row + x * coef1, col + y * coef2, piece.not_color):
+                                possible_moves.append((row + x * coef1, col + y * coef2))
+                            break
+                        break
+                    break
+            for coef1, coef2 in [(1, 1), (-1, 1), (1, -1), (-1, -1)]:
+                for i in range(1, 8):
+                    for j in range(1, 8):
+                        if is_empty_square(row + i * coef1, col + j * coef2):
+                            possible_moves.append((row + i * coef1, col + j * coef2))
+                        elif is_ally_piece(row + i * coef1, col + j * coef2, piece.color):
+                            break
+                        else:
+                            if is_enemy_piece(row + i * coef1, col + j * coef2, piece.not_color):
+                                possible_moves.append((row + i * coef1, col + j * coef2))
+                            break
+                        break
+                    break
+
+        if piece.pieceType == PieceType.kingBlack or piece.pieceType == PieceType.kingWhite:
+            for coef1, coef2 in [(1, 0), (-1, 0), (0, 1), (0, -1), (1, 1), (-1, 1), (1, -1), (-1, -1)]:
+                if is_empty_square(row + coef1, col + coef2):
+                    possible_moves.append((row + coef1, col + coef2))
+                elif is_ally_piece(row + coef1, col + coef2, piece.color):
+                    break
+                else:
+                    if is_enemy_piece(row + coef1, col + coef2, piece.not_color):
+                        possible_moves.append((row + coef1, col + coef2))
+                    break
+                break
+
         return possible_moves
 
     def highlight_moves(self, moves):
@@ -107,34 +200,67 @@ class ChessBoard(tk.Frame):
             self.is_highlighted = True
 
     def unhighlight_moves(self):
-        print("unhighlighting")
         for i in range(8):
             for j in range(8):
                 if (i + j) % 2 == 0:
-                    color = "white"
+                    color = self.white_square
                 else:
-                    color = "black"
+                    color = self.black_square
                 self.chessSquares[i][j].config(bg=color)
 
-    def draw_board(self, root, pieceClicked=False):
+    def draw_board(self, root):
         for i in range(8):
             for j in range(8):
-                if (i + j) % 2 == 0:
-                    color = "white"
-                else:
-                    color = "black"
-                if self.chessData[i][j] is not None:
+                color = self.white_square if (i + j) % 2 == 0 else self.black_square
+                square = ChessSquare(root, color)
+                square.grid(row=i, column=j)
+                self.chessSquares[i][j] = square
+
+                # Add coordinate text on the square
+                coordinate_label = tk.Label(square, text=f"{i},{j}", font=("Arial", 8))
+                coordinate_label.place(relx=0.5, rely=0.1, anchor="center")
+
+                if self.chessData[i][j] is not None:  # if there is a piece in the position
                     piece = self.chessData[i][j]
-                    img = ImageTk.PhotoImage(Image.open(piece.path))
-                    square = ChessSquare(root, color, piece=piece)
-                    square.create_image(50, 50, anchor=tk.CENTER, image=img)
-                    square.image = img  # Keep a reference to the image to prevent garbage collection
-                    square.bind("<Button-1>", lambda event, p=piece: self.possible_moves(p, self.chessData)) # Detect clicks
-                    square.grid(row=i, column=j)
-                    self.chessSquares[i][j] = square
+                    img = Image.open(piece.path)
+                    photo = ImageTk.PhotoImage(img)
+                    # put the picture in the center of the square
+                    square.create_image(50, 46, image=photo)
+                    square.photo = photo
+                    square.piece = piece
+                    if self.lastSelectedPiece is not None and self.lastSelectedPiece == piece:
+                        square.config(bg="blue")
+                    if self.possible_moves_list is None and square.cget("bg") != "green":
+                        square.bind("<Button-1>", self.detect_piece_position)
                 else:
-                    square = ChessSquare(root, color)
-                    square.grid(row=i, column=j)
-                    self.chessSquares[i][j] = square
-                    square.bind("<Button-1>", lambda event, p=piece: self.possible_moves(p, self.chessData)) # Detect clicks
+                    square.bind("<Button-1>", self.move_piece)
         root.mainloop()
+
+    def detect_piece_position(self, event):
+        square = event.widget
+        piece = square.piece
+        if self.lastSelectedPiece is not None:
+            if piece.color != self.lastSelectedPiece.color:
+                self.move_piece(event)
+        piece.position = event.widget.grid_info()["row"], event.widget.grid_info()["column"] # update the piece position
+        self.lastSelectedPiece = piece
+        self.possible_moves_list = self.possible_moves(piece)
+        self.highlight_moves(self.possible_moves_list)
+
+    def move_piece(self, event):
+        if self.is_highlighted:
+            self.unhighlight_moves()
+        square = event.widget
+        if self.possible_moves_list is not None:
+            # detect if the square clicked is in the possible moves list
+            self.new_position = (square.grid_info()["row"], square.grid_info()["column"])
+            if self.new_position in self.possible_moves_list:
+                self.chessData[self.new_position[0]][self.new_position[1]] = self.lastSelectedPiece
+                self.chessData[self.lastSelectedPiece.position[0]][self.lastSelectedPiece.position[1]] = None
+
+                # reset the variables
+                self.possible_moves_list = None
+                self.lastSelectedPiece = None
+                self.new_position = None
+
+                self.draw_board(self.master)
