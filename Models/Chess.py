@@ -121,84 +121,83 @@ class ChessBoard(tk.Frame):
 
         if piece.pieceType == PieceType.rookBlack or piece.pieceType == PieceType.rookWhite:
             for coef1, coef2 in [(1, 0), (-1, 0), (0, 1), (0, -1)]:
-                for x in range(1, 8):
-                    for y in range(1, 8):
-                        if is_empty_square(row + x * coef1, col + y * coef2):
-                            possible_moves.append((row + x * coef1, col + y * coef2))
-                        elif is_ally_piece(row + x * coef1, col + y * coef2, piece.color):
+                for i in range(1, 8):
+                    new_row, new_col = row + i * coef1, col + i * coef2
+                    if 0 <= new_row < 8 and 0 <= new_col < 8:
+                        if is_empty_square(new_row, new_col):
+                            possible_moves.append((new_row, new_col))
+                        elif is_ally_piece(new_row, new_col):
                             break
                         else:
-                            if is_enemy_piece(row + x * coef1, col + y * coef2):
-                                possible_moves.append((row + x * coef1, col + y * coef2))
+                            if is_enemy_piece(new_row, new_col):
+                                possible_moves.append((new_row, new_col))
                             break
+                    else:
                         break
-                    break
+
         if piece.pieceType == PieceType.knightBlack or piece.pieceType == PieceType.knightWhite:
             for coef1, coef2 in [(1, 2), (-1, 2), (1, -2), (-1, -2), (2, 1), (-2, 1), (2, -1), (-2, -1)]:
-                if is_empty_square(row + coef1, col + coef2):
-                    possible_moves.append((row + coef1, col + coef2))
-                elif is_ally_piece(row + coef1, col + coef2, piece.color):
-                    break
-                else:
-                    if is_enemy_piece(row + coef1, col + coef2, piece.color):
-                        possible_moves.append((row + coef1, col + coef2))
-                    break
-                break
+                new_row, new_col = row + coef1, col + coef2
+                if 0 <= new_row < 8 and 0 <= new_col < 8:
+                    if is_empty_square(new_row, new_col):
+                        possible_moves.append((new_row, new_col))
+                    elif is_enemy_piece(new_row, new_col):
+                        possible_moves.append((new_row, new_col))
 
         if piece.pieceType == PieceType.bishopBlack or piece.pieceType == PieceType.bishopWhite:
             for coef1, coef2 in [(1, 1), (-1, 1), (1, -1), (-1, -1)]:
                 for i in range(1, 8):
-                    for j in range(1, 8):
-                        if is_empty_square(row + i * coef1, col + j * coef2):
-                            possible_moves.append((row + i * coef1, col + j * coef2))
-                        elif is_ally_piece(row + i * coef1, col + j * coef2):
+                    new_row, new_col = row + i * coef1, col + i * coef2
+                    if 0 <= new_row < 8 and 0 <= new_col < 8:
+                        if is_empty_square(new_row, new_col):
+                            possible_moves.append((new_row, new_col))
+                        elif is_ally_piece(new_row, new_col):
                             break
                         else:
-                            if is_enemy_piece(row + i * coef1, col + j * coef2):
-                                possible_moves.append((row + i * coef1, col + j * coef2))
+                            if is_enemy_piece(new_row, new_col):
+                                possible_moves.append((new_row, new_col))
                             break
+                    else:
                         break
-                    break
 
         if piece.pieceType == PieceType.queenBlack or piece.pieceType == PieceType.queenWhite:
             for coef1, coef2 in [(1, 0), (-1, 0), (0, 1), (0, -1)]:
-                for x in range(1, 8):
-                    for y in range(1, 8):
-                        if is_empty_square(row + x * coef1, col + y * coef2):
-                            possible_moves.append((row + x * coef1, col + y * coef2))
-                        elif is_ally_piece(row + x * coef1, col + y * coef2):
+                for i in range(1, 8):
+                    new_row, new_col = row + i * coef1, col + i * coef2
+                    if 0 <= new_row < 8 and 0 <= new_col < 8:
+                        if is_empty_square(new_row, new_col):
+                            possible_moves.append((new_row, new_col))
+                        elif is_ally_piece(new_row, new_col):
                             break
                         else:
-                            if is_enemy_piece(row + x * coef1, col + y * coef2):
-                                possible_moves.append((row + x * coef1, col + y * coef2))
+                            if is_enemy_piece(new_row, new_col):
+                                possible_moves.append((new_row, new_col))
                             break
+                    else:
                         break
-                    break
             for coef1, coef2 in [(1, 1), (-1, 1), (1, -1), (-1, -1)]:
                 for i in range(1, 8):
-                    for j in range(1, 8):
-                        if is_empty_square(row + i * coef1, col + j * coef2):
-                            possible_moves.append((row + i * coef1, col + j * coef2))
-                        elif is_ally_piece(row + i * coef1, col + j * coef2, piece.color):
+                    new_row, new_col = row + i * coef1, col + i * coef2
+                    if 0 <= new_row < 8 and 0 <= new_col < 8:
+                        if is_empty_square(new_row, new_col):
+                            possible_moves.append((new_row, new_col))
+                        elif is_ally_piece(new_row, new_col):
                             break
                         else:
-                            if is_enemy_piece(row + i * coef1, col + j * coef2, piece.not_color):
-                                possible_moves.append((row + i * coef1, col + j * coef2))
+                            if is_enemy_piece(new_row, new_col):
+                                possible_moves.append((new_row, new_col))
                             break
+                    else:
                         break
-                    break
 
         if piece.pieceType == PieceType.kingBlack or piece.pieceType == PieceType.kingWhite:
             for coef1, coef2 in [(1, 0), (-1, 0), (0, 1), (0, -1), (1, 1), (-1, 1), (1, -1), (-1, -1)]:
-                if is_empty_square(row + coef1, col + coef2):
-                    possible_moves.append((row + coef1, col + coef2))
-                elif is_ally_piece(row + coef1, col + coef2, piece.color):
-                    break
-                else:
-                    if is_enemy_piece(row + coef1, col + coef2, piece.not_color):
-                        possible_moves.append((row + coef1, col + coef2))
-                    break
-                break
+                new_row, new_col = row + coef1, col + coef2
+                if 0 <= new_row < 8 and 0 <= new_col < 8:
+                    if is_empty_square(new_row, new_col):
+                        possible_moves.append((new_row, new_col))
+                    elif is_enemy_piece(new_row, new_col):
+                        possible_moves.append((new_row, new_col))
 
         return possible_moves
 
@@ -253,7 +252,8 @@ class ChessBoard(tk.Frame):
         if self.last_selected_piece is not None:
             if piece.color != self.last_selected_piece.color:
                 self.move_piece(event)
-        piece.position = event.widget.grid_info()["row"], event.widget.grid_info()["column"] # update the piece position
+        piece.position = event.widget.grid_info()["row"], event.widget.grid_info()[
+            "column"]  # update the piece position
         self.last_selected_piece = piece
         self.possible_moves_list = self.possible_moves(piece)
         self.highlight_moves(self.possible_moves_list)
