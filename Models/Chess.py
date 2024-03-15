@@ -23,45 +23,60 @@ class ChessBoard(tk.Frame):
         # Move variables
         self.new_position = None
         self.last_selected_piece = None
-        self.image = None
+
+        # Get movement Functions
+        self.movement_functions = {
+            PieceType.PAWN_WHITE: self.pawn_possible_moves,
+            PieceType.PAWN_BLACK: self.pawn_possible_moves,
+            PieceType.ROOK_WHITE: self.rook_possible_moves,
+            PieceType.ROOK_BLACK: self.rook_possible_moves,
+            PieceType.KNIGHT_WHITE: self.knight_possible_moves,
+            PieceType.KNIGHT_BLACK: self.knight_possible_moves,
+            PieceType.BISHOP_WHITE: self.bishop_possible_moves,
+            PieceType.BISHOP_BLACK: self.bishop_possible_moves,
+            PieceType.QUEEN_WHITE: self.queen_possible_moves,
+            PieceType.QUEEN_BLACK: self.queen_possible_moves,
+            PieceType.KING_WHITE: self.king_possible_moves,
+            PieceType.KING_BLACK: self.king_possible_moves
+        }
 
         # Default Placement of the pieces
         self.pieces_list = [
-            Piece(PieceType.rookBlack, (0, 0)),
-            Piece(PieceType.knightBlack, (0, 1)),
-            Piece(PieceType.bishopBlack, (0, 2)),
-            Piece(PieceType.queenBlack, (0, 3)),
-            Piece(PieceType.kingBlack, (0, 4)),
-            Piece(PieceType.bishopBlack, (0, 5)),
-            Piece(PieceType.knightBlack, (0, 6)),
-            Piece(PieceType.rookBlack, (0, 7)),
-            Piece(PieceType.pawnBlack, (1, 0)),
-            Piece(PieceType.pawnBlack, (1, 1)),
-            Piece(PieceType.pawnBlack, (1, 2)),
-            Piece(PieceType.pawnBlack, (1, 3)),
-            Piece(PieceType.pawnBlack, (1, 4)),
-            Piece(PieceType.pawnBlack, (1, 5)),
-            Piece(PieceType.pawnBlack, (1, 6)),
-            Piece(PieceType.pawnBlack, (1, 7)),
-            Piece(PieceType.pawnWhite, (6, 0)),
-            Piece(PieceType.pawnWhite, (6, 1)),
-            Piece(PieceType.pawnWhite, (6, 2)),
-            Piece(PieceType.pawnWhite, (6, 3)),
-            Piece(PieceType.pawnWhite, (6, 4)),
-            Piece(PieceType.pawnWhite, (6, 5)),
-            Piece(PieceType.pawnWhite, (6, 6)),
-            Piece(PieceType.pawnWhite, (6, 7)),
-            Piece(PieceType.rookWhite, (7, 0)),
-            Piece(PieceType.knightWhite, (7, 1)),
-            Piece(PieceType.bishopWhite, (7, 2)),
-            Piece(PieceType.queenWhite, (7, 3)),
-            Piece(PieceType.kingWhite, (7, 4)),
-            Piece(PieceType.bishopWhite, (7, 5)),
-            Piece(PieceType.knightWhite, (7, 6)),
-            Piece(PieceType.rookWhite, (7, 7)),
+            Piece(PieceType.ROOK_BLACK, (0, 0)),
+            Piece(PieceType.KNIGHT_BLACK, (0, 1)),
+            Piece(PieceType.BISHOP_BLACK, (0, 2)),
+            Piece(PieceType.QUEEN_BLACK, (0, 3)),
+            Piece(PieceType.KING_BLACK, (0, 4)),
+            Piece(PieceType.BISHOP_BLACK, (0, 5)),
+            Piece(PieceType.KNIGHT_BLACK, (0, 6)),
+            Piece(PieceType.ROOK_BLACK, (0, 7)),
+            Piece(PieceType.PAWN_BLACK, (1, 0)),
+            Piece(PieceType.PAWN_BLACK, (1, 1)),
+            Piece(PieceType.PAWN_BLACK, (1, 2)),
+            Piece(PieceType.PAWN_BLACK, (1, 3)),
+            Piece(PieceType.PAWN_BLACK, (1, 4)),
+            Piece(PieceType.PAWN_BLACK, (1, 5)),
+            Piece(PieceType.PAWN_BLACK, (1, 6)),
+            Piece(PieceType.PAWN_BLACK, (1, 7)),
+            Piece(PieceType.PAWN_WHITE, (6, 0)),
+            Piece(PieceType.PAWN_WHITE, (6, 1)),
+            Piece(PieceType.PAWN_WHITE, (6, 2)),
+            Piece(PieceType.PAWN_WHITE, (6, 3)),
+            Piece(PieceType.PAWN_WHITE, (6, 4)),
+            Piece(PieceType.PAWN_WHITE, (6, 5)),
+            Piece(PieceType.PAWN_WHITE, (6, 6)),
+            Piece(PieceType.PAWN_WHITE, (6, 7)),
+            Piece(PieceType.ROOK_WHITE, (7, 0)),
+            Piece(PieceType.KNIGHT_WHITE, (7, 1)),
+            Piece(PieceType.BISHOP_WHITE, (7, 2)),
+            Piece(PieceType.QUEEN_WHITE, (7, 3)),
+            Piece(PieceType.KING_WHITE, (7, 4)),
+            Piece(PieceType.BISHOP_WHITE, (7, 5)),
+            Piece(PieceType.KNIGHT_WHITE, (7, 6)),
+            Piece(PieceType.ROOK_WHITE, (7, 7)),
 
             # test purposes
-            Piece(PieceType.pawnBlack, (5, 3))
+            Piece(PieceType.PAWN_BLACK, (5, 3))
         ]
 
         # colors
@@ -78,128 +93,111 @@ class ChessBoard(tk.Frame):
     def place_piece(self, piece: Piece):
         self.chessData[piece.position[0]][piece.position[1]] = piece
 
-    def possible_moves(self, piece: Piece):
-        possible_moves = []
+    def is_empty_square(self, row, col):
+        return self.is_valid_position(row, col) and self.chessData[row][col] is None
 
-        def is_valid_position(row, col):
-            return 0 <= row < 8 and 0 <= col < 8
+    def is_enemy_piece(self, row, col, color):
+        return self.is_valid_position(row, col) and self.chessData[row][col] is not None and self.chessData[row][
+            col].color != color
 
-        def is_empty_square(row, col):
-            return is_valid_position(row, col) and self.chessData[row][col] is None
+    @staticmethod
+    def is_valid_position(row, col):
+        return 0 <= row < 8 and 0 <= col < 8
 
-        def is_enemy_piece(row, col):
-            return is_valid_position(row, col) and self.chessData[row][col] is not None and self.chessData[row][
-                col].color != self.last_selected_piece.color
-
-        def is_ally_piece(row, col):
-            return is_valid_position(row, col) and self.chessData[row][col] is not None and self.chessData[row][
-                col].color == self.last_selected_piece.color
-
+    def pawn_possible_moves(self, piece: Piece):
         row, col = piece.position
+        self.possible_moves_list = []
+        pawn_direction = 1 if piece.color == 'white' else -1
+        if self.is_empty_square(row + pawn_direction, col):
+            self.possible_moves_list.append((row + pawn_direction, col))
+            if (row == 1 and piece.color == 'white') or (row == 6 and piece.color == 'black'):
+                if self.is_empty_square(row + 2 * pawn_direction, col):
+                    self.possible_moves_list.append((row + 2 * pawn_direction, col))
 
-        if piece.pieceType == PieceType.pawnWhite:
-            if is_empty_square(row - 1, col):
-                possible_moves.append((row - 1, col))
-                if row == 6 and is_empty_square(row - 2, col):
-                    possible_moves.append((row - 2, col))
+        for dcol in [-1, 1]:
+            new_row, new_col = row + pawn_direction, col + dcol
+            if self.is_valid_position(new_row, new_col) and self.is_enemy_piece(new_row, new_col, piece.color):
+                self.possible_moves_list.append((new_row, new_col))
+        return self.possible_moves_list
 
-            if is_enemy_piece(row - 1, col - 1):
-                possible_moves.append((row - 1, col - 1))
-            if is_enemy_piece(row - 1, col + 1):
-                possible_moves.append((row - 1, col + 1))
-
-        if piece.pieceType == PieceType.pawnBlack:
-            if is_empty_square(row + 1, col):
-                possible_moves.append((row + 1, col))
-                if row == 1 and is_empty_square(row + 2, col):
-                    possible_moves.append((row + 2, col))
-
-            if is_enemy_piece(row + 1, col - 1):
-                possible_moves.append((row + 1, col - 1))
-            if is_enemy_piece(row + 1, col + 1):
-                possible_moves.append((row + 1, col + 1))
-
-        if piece.pieceType == PieceType.rookBlack or piece.pieceType == PieceType.rookWhite:
-            for coef1, coef2 in [(1, 0), (-1, 0), (0, 1), (0, -1)]:
-                for i in range(1, 8):
-                    new_row, new_col = row + i * coef1, col + i * coef2
-                    if 0 <= new_row < 8 and 0 <= new_col < 8:
-                        if is_empty_square(new_row, new_col):
-                            possible_moves.append((new_row, new_col))
-                        elif is_ally_piece(new_row, new_col):
-                            break
-                        else:
-                            if is_enemy_piece(new_row, new_col):
-                                possible_moves.append((new_row, new_col))
-                            break
+    def rook_possible_moves(self, piece: Piece):
+        row, col = piece.position
+        self.possible_moves_list = []
+        directions = [(1, 0), (-1, 0), (0, 1), (0, -1)]
+        for drow, dcol in directions:
+            for i in range(1, 8):
+                new_row, new_col = row + i * drow, col + i * dcol
+                if self.is_valid_position(new_row, new_col):
+                    if self.is_empty_square(new_row, new_col):
+                        self.possible_moves_list.append((new_row, new_col))
+                    elif self.is_enemy_piece(new_row, new_col, piece.color):
+                        self.possible_moves_list.append((new_row, new_col))
+                        break
                     else:
                         break
+                else:
+                    break
+        return self.possible_moves_list
 
-        if piece.pieceType == PieceType.knightBlack or piece.pieceType == PieceType.knightWhite:
-            for coef1, coef2 in [(1, 2), (-1, 2), (1, -2), (-1, -2), (2, 1), (-2, 1), (2, -1), (-2, -1)]:
-                new_row, new_col = row + coef1, col + coef2
-                if 0 <= new_row < 8 and 0 <= new_col < 8:
-                    if is_empty_square(new_row, new_col):
-                        possible_moves.append((new_row, new_col))
-                    elif is_enemy_piece(new_row, new_col):
-                        possible_moves.append((new_row, new_col))
+    def knight_possible_moves(self, piece: Piece):
+        row, col = piece.position
+        self.possible_moves_list = []
+        moves = [(1, 2), (-1, 2), (1, -2), (-1, -2), (2, 1), (-2, 1), (2, -1), (-2, -1)]
+        for drow, dcol in moves:
+            new_row, new_col = row + drow, col + dcol
+            if self.is_valid_position(new_row, new_col) and (
+                    self.is_empty_square(new_row, new_col) or self.is_enemy_piece(new_row, new_col, piece.color)):
+                self.possible_moves_list.append((new_row, new_col))
+        return self.possible_moves_list
 
-        if piece.pieceType == PieceType.bishopBlack or piece.pieceType == PieceType.bishopWhite:
-            for coef1, coef2 in [(1, 1), (-1, 1), (1, -1), (-1, -1)]:
-                for i in range(1, 8):
-                    new_row, new_col = row + i * coef1, col + i * coef2
-                    if 0 <= new_row < 8 and 0 <= new_col < 8:
-                        if is_empty_square(new_row, new_col):
-                            possible_moves.append((new_row, new_col))
-                        elif is_ally_piece(new_row, new_col):
-                            break
-                        else:
-                            if is_enemy_piece(new_row, new_col):
-                                possible_moves.append((new_row, new_col))
-                            break
+    def bishop_possible_moves(self, piece: Piece):
+        row, col = piece.position
+        self.possible_moves_list = []
+        directions = [(1, 1), (-1, 1), (1, -1), (-1, -1)]
+        for drow, dcol in directions:
+            for i in range(1, 8):
+                new_row, new_col = row + i * drow, col + i * dcol
+                if self.is_valid_position(new_row, new_col):
+                    if self.is_empty_square(new_row, new_col):
+                        self.possible_moves_list.append((new_row, new_col))
+                    elif self.is_enemy_piece(new_row, new_col, piece.color):
+                        self.possible_moves_list.append((new_row, new_col))
+                        break
                     else:
                         break
+                else:
+                    break
+        return self.possible_moves_list
 
-        if piece.pieceType == PieceType.queenBlack or piece.pieceType == PieceType.queenWhite:
-            for coef1, coef2 in [(1, 0), (-1, 0), (0, 1), (0, -1)]:
-                for i in range(1, 8):
-                    new_row, new_col = row + i * coef1, col + i * coef2
-                    if 0 <= new_row < 8 and 0 <= new_col < 8:
-                        if is_empty_square(new_row, new_col):
-                            possible_moves.append((new_row, new_col))
-                        elif is_ally_piece(new_row, new_col):
-                            break
-                        else:
-                            if is_enemy_piece(new_row, new_col):
-                                possible_moves.append((new_row, new_col))
-                            break
+    def queen_possible_moves(self, piece: Piece):
+        row, col = piece.position
+        self.possible_moves_list = []
+        directions = [(1, 0), (-1, 0), (0, 1), (0, -1), (1, 1), (-1, 1), (1, -1), (-1, -1)]
+        for drow, dcol in directions:
+            for i in range(1, 8):
+                new_row, new_col = row + i * drow, col + i * dcol
+                if self.is_valid_position(new_row, new_col):
+                    if self.is_empty_square(new_row, new_col):
+                        self.possible_moves_list.append((new_row, new_col))
+                    elif self.is_enemy_piece(new_row, new_col, piece.color):
+                        self.possible_moves_list.append((new_row, new_col))
+                        break
                     else:
                         break
-            for coef1, coef2 in [(1, 1), (-1, 1), (1, -1), (-1, -1)]:
-                for i in range(1, 8):
-                    new_row, new_col = row + i * coef1, col + i * coef2
-                    if 0 <= new_row < 8 and 0 <= new_col < 8:
-                        if is_empty_square(new_row, new_col):
-                            possible_moves.append((new_row, new_col))
-                        elif is_ally_piece(new_row, new_col):
-                            break
-                        else:
-                            if is_enemy_piece(new_row, new_col):
-                                possible_moves.append((new_row, new_col))
-                            break
-                    else:
-                        break
+                else:
+                    break
+        return self.possible_moves_list
 
-        if piece.pieceType == PieceType.kingBlack or piece.pieceType == PieceType.kingWhite:
-            for coef1, coef2 in [(1, 0), (-1, 0), (0, 1), (0, -1), (1, 1), (-1, 1), (1, -1), (-1, -1)]:
-                new_row, new_col = row + coef1, col + coef2
-                if 0 <= new_row < 8 and 0 <= new_col < 8:
-                    if is_empty_square(new_row, new_col):
-                        possible_moves.append((new_row, new_col))
-                    elif is_enemy_piece(new_row, new_col):
-                        possible_moves.append((new_row, new_col))
-
-        return possible_moves
+    def king_possible_moves(self, piece: Piece):
+        row, col = piece.position
+        self.possible_moves_list = []
+        moves = [(1, 0), (-1, 0), (0, 1), (0, -1), (1, 1), (-1, 1), (1, -1), (-1, -1)]
+        for drow, dcol in moves:
+            new_row, new_col = row + drow, col + dcol
+            if self.is_valid_position(new_row, new_col) and (
+                    self.is_empty_square(new_row, new_col) or self.is_enemy_piece(new_row, new_col, piece.color)):
+                self.possible_moves_list.append((new_row, new_col))
+        return self.possible_moves_list
 
     def highlight_moves(self, moves):
         if self.is_highlighted:
@@ -244,27 +242,27 @@ class ChessBoard(tk.Frame):
                         square.bind("<Button-1>", self.detect_piece_position)
                 else:
                     square.bind("<Button-1>", self.move_piece)
+
         root.mainloop()
 
     def detect_piece_position(self, event):
         square = event.widget
         piece = square.piece
+
         if self.last_selected_piece is not None:
             if piece.color != self.last_selected_piece.color:
                 self.move_piece(event)
         piece.position = event.widget.grid_info()["row"], event.widget.grid_info()[
             "column"]  # update the piece position
         self.last_selected_piece = piece
-        self.possible_moves_list = self.possible_moves(piece)
+        self.possible_moves_list = self.movement_functions[piece.pieceType](piece)
         self.highlight_moves(self.possible_moves_list)
 
     def move_piece(self, event):
-        if self.is_highlighted:
-            self.unhighlight_moves()
         square = event.widget
         if self.possible_moves_list is not None:
-            # detect if the square clicked is in the possible moves list
             self.new_position = (square.grid_info()["row"], square.grid_info()["column"])
+            # detect if the square clicked is in the possible moves list
             if self.new_position in self.possible_moves_list:
                 self.chessData[self.new_position[0]][self.new_position[1]] = self.last_selected_piece
                 self.chessData[self.last_selected_piece.position[0]][self.last_selected_piece.position[1]] = None
@@ -273,5 +271,4 @@ class ChessBoard(tk.Frame):
                 self.possible_moves_list = None
                 self.last_selected_piece = None
                 self.new_position = None
-
                 self.draw_board(self.master)

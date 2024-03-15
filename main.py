@@ -10,5 +10,3 @@ if __name__ == '__main__':
     root.title("Chess")
     board = ChessBoard()
     board.draw_board(root)
-
-    # WRITING DATA TO THE BOARD

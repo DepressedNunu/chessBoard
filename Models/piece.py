@@ -2,18 +2,19 @@ from enum import Enum
 
 
 class PieceType(Enum):
-    pawnWhite = -1
-    rookWhite = -2
-    knightWhite = -3
-    bishopWhite = -4
-    queenWhite = -5
-    kingWhite = -6
-    pawnBlack = 1
-    rookBlack = 2
-    knightBlack = 3
-    bishopBlack = 4
-    queenBlack = 5
-    kingBlack = 6
+    PAWN_WHITE = -1
+    ROOK_WHITE = -2
+    KNIGHT_WHITE = -3
+    BISHOP_WHITE = -4
+    QUEEN_WHITE = -5
+    KING_WHITE = -6
+    PAWN_BLACK = 1
+    ROOK_BLACK = 2
+    KNIGHT_BLACK = 3
+    BISHOP_BLACK = 4
+    QUEEN_BLACK = 5
+    KING_BLACK = 6
+
 
 
 class Piece:
