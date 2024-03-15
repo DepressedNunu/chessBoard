@@ -16,7 +16,6 @@ class PieceType(Enum):
     KING_BLACK = 6
 
 
-
 class Piece:
     pieceType = PieceType
     position = tuple()
