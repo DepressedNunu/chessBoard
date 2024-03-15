@@ -1,6 +1,6 @@
 import tkinter as tk
 import numpy
-from Models.piece import *
+from src.Models.piece import *
 
 
 class ChessBoard(tk.Frame):
