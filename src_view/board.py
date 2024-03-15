@@ -1,12 +1,12 @@
 import tkinter as tk
-import numpy as np
 
-from src.Models.chess_square import ChessSquare
 from src.Models.chess_board import ChessBoard
+from src.Models.chess_square import ChessSquare
 
 white_square = "#18D9AC"
 black_square = "#BED8D2"
 highlight_square = "#91C73B"
+
 
 class SquareCanvas(tk.Canvas):
     def __init__(self, master, chess_square: ChessSquare):
@@ -36,7 +36,7 @@ class BoardWindow(tk.Tk):
     def __init__(self, chess_board: ChessBoard):
         super().__init__()
         self.title("Chess Board")
-        self.board = BoardCanvas(self, 5, 5)
+        self.board = BoardCanvas(self, 1, 1)
         self.create_board(chess_board)
 
     def create_board(self, chess_board: ChessBoard):
