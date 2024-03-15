@@ -4,6 +4,9 @@ import numpy as np
 from src.Models.chess_square import ChessSquare
 from src.Models.chess_board import ChessBoard
 
+white_square = "#18D9AC"
+black_square = "#BED8D2"
+highlight_square = "#91C73B"
 
 class SquareCanvas(tk.Canvas):
     def __init__(self, master, chess_square: ChessSquare):
@@ -13,9 +16,9 @@ class SquareCanvas(tk.Canvas):
 
     def set_color(self, position_x: int, position_y: int) -> str:
         if (position_x + position_y) % 2 == 0:
-            return "white"
+            return white_square
         else:
-            return "black"
+            return black_square
 
 
 class BoardCanvas(tk.Canvas):
@@ -33,7 +36,7 @@ class BoardWindow(tk.Tk):
     def __init__(self, chess_board: ChessBoard):
         super().__init__()
         self.title("Chess Board")
-        self.board = BoardCanvas(self, 1000, 1000)
+        self.board = BoardCanvas(self, 5, 5)
         self.create_board(chess_board)
 
     def create_board(self, chess_board: ChessBoard):
