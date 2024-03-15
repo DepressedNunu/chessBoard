@@ -39,13 +39,7 @@ class BoardWindow(tk.Tk):
         self.board = BoardCanvas(self, 1, 1)
         self.create_board(chess_board)
 
-    def create_board(self, chess_board: ChessBoard):
+    def create_board(self, board: ChessBoard):
         for i in range(8):
             for j in range(8):
-                self.board.add_square(chess_board.board[i][j])
-
-
-if __name__ == "__main__":
-    chess_board = ChessBoard()
-    app = BoardWindow(chess_board)
-    app.mainloop()
+                self.board.add_square(board.board[i][j])
