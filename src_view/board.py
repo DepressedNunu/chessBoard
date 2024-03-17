@@ -41,10 +41,6 @@ class SquareCanvas(tk.Canvas):
     def on_square_clicked(self, event):
         self.click_callback(self)
 
-    def show_moves(self):
-        pass
-        # TODO:show les moves ici
-
 
 class BoardCanvas(tk.Canvas):
     def __init__(self, master, h, w, click_callback):
@@ -79,8 +75,9 @@ class BoardWindow(tk.Tk):
             for j in range(8):
                 self.board.add_square(board.board[i][j], self.handle_square_click)
 
-    def highlight_squares(self, squares: list):
-        pass
+    def highlight_squares(self, squares_canvas: list):
+        for square in squares_canvas:
+            square.config(background=highlight_square)
 
     def handle_square_click(self, square_canvas):
         if self.last_selected_piece and self.last_selected_piece is not square_canvas:
@@ -94,4 +91,7 @@ class BoardWindow(tk.Tk):
             square_canvas.config(background=highlight_square)
             self.last_selected_piece = square_canvas
             self.last_selected_piece.is_highlighted = True
-            self.last_selected_piece.show_moves()
+            self.show_moves(self.last_selected_piece)
+
+    def show_moves(self, selected_piece):
+        # TODO : methode pour afficher les moves
