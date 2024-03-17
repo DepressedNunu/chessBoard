@@ -44,7 +44,7 @@ starting_pieces_list = [
 
 class ChessBoard:
     def __init__(self):
-        self.board = np.array([[ChessSquare(i, j) for j in range(8)] for i in range(8)], dtype=object)
+        self.board = np.array([[ChessSquare(i, j) for i in range(8)] for j in range(8)], dtype=object)
         self.setup_pieces()
 
     def setup_pieces(self):
