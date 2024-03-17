@@ -17,6 +17,9 @@ def set_color(position_x: int, position_y: int) -> str:
 class SquareCanvas(tk.Canvas):
     def __init__(self, master, chess_square: ChessSquare, click_callback):
         super().__init__(master, width=100, height=100, background=set_color(chess_square.x, chess_square.y))
+        # Variables
+        self.is_highlighted = False
+
         self.chess_square = chess_square
         self.position_x = chess_square.x
         self.position_y = chess_square.y
@@ -36,6 +39,7 @@ class SquareCanvas(tk.Canvas):
 
     def on_square_clicked(self, event):
         self.click_callback(self)
+        print(self.is_highlighted)
 
 
 class BoardCanvas(tk.Canvas):
@@ -55,7 +59,6 @@ class BoardWindow(tk.Tk):
         super().__init__()
 
         # Variables
-        self.is_highlighted = False
         self.possible_moves_list = None
 
         # Move variables
@@ -71,12 +74,18 @@ class BoardWindow(tk.Tk):
             for j in range(8):
                 self.board.add_square(board.board[i][j], self.handle_square_click)
 
+    def highlight_squares(self, squares: list):
+        pass
+
     def handle_square_click(self, square_canvas):
         if self.last_selected_piece and self.last_selected_piece is not square_canvas:
             # Unselect the last square
+            self.last_selected_piece.is_highlighted = False
             self.last_selected_piece.config(
                 background=set_color(self.last_selected_piece.position_x, self.last_selected_piece.position_y))
+
         # Select the new
         if square_canvas.chess_square.has_value:
             square_canvas.config(background=highlight_square)
             self.last_selected_piece = square_canvas
+            self.last_selected_piece.is_highlighted = True
