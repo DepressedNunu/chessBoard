@@ -1,6 +1,7 @@
 import tkinter as tk
 from PIL import Image, ImageTk
 
+from src.Models import chess_board
 from src.Models.chess_board import ChessBoard
 from src.Models.chess_square import ChessSquare
 from src.Models.piece import Piece
@@ -39,7 +40,10 @@ class SquareCanvas(tk.Canvas):
 
     def on_square_clicked(self, event):
         self.click_callback(self)
-        print(self.is_highlighted)
+
+    def show_moves(self):
+        pass
+        # TODO:show les moves ici
 
 
 class BoardCanvas(tk.Canvas):
@@ -60,6 +64,7 @@ class BoardWindow(tk.Tk):
 
         # Variables
         self.possible_moves_list = None
+        self.chess_board = chess_board
 
         # Move variables
         self.new_position = None
@@ -89,3 +94,4 @@ class BoardWindow(tk.Tk):
             square_canvas.config(background=highlight_square)
             self.last_selected_piece = square_canvas
             self.last_selected_piece.is_highlighted = True
+            self.last_selected_piece.show_moves()
