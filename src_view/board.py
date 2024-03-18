@@ -94,4 +94,4 @@ class BoardWindow(tk.Tk):
             self.show_moves(self.last_selected_piece)
 
     def show_moves(self, selected_piece):
-        # TODO : methode pour afficher les moves
+    #TODO : methode pour afficher les moves
