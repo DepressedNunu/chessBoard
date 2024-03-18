@@ -1,8 +1,9 @@
-import numpy
 import tkinter as tk
+
 import numpy as np
 from PIL import Image, ImageTk
-from Models.piece import *
+
+from src.Models.piece import Piece, PieceType
 
 
 class ChessSquare(tk.Canvas):

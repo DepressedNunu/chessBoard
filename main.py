@@ -5,8 +5,7 @@ from Models.Chess import ChessBoard
 from Models.piece import Piece
 from Models.piece import PieceType
 
-if __name__ == '__main__':
-    root = tk.Tk()
-    root.title("Chess")
-    board = ChessBoard()
-    board.draw_board(root)
+if __name__ == "__main__":
+    chess_board = ChessBoard()
+    app = BoardWindow(chess_board)
+    app.mainloop()
