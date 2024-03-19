@@ -39,7 +39,7 @@ class SquareCanvas(tk.Canvas):
         self.create_image(50, 50, image=self.piece_image)
 
     def on_square_clicked(self, event):
-        self.click_callback(self, chess_board)
+        self.click_callback(self)
 
 
 class BoardCanvas(tk.Canvas):
@@ -104,7 +104,7 @@ class BoardWindow(tk.Tk):
                 square_canvas = self.board.grid_slaves(row, col)[0]
                 square_canvas.config(background=set_color(square_canvas.position_x, square_canvas.position_y))
 
-    def handle_square_click(self, square_canvas, chess_board: chess_board):
+    def handle_square_click(self, square_canvas):
         print(f"Square clicked: {square_canvas.position_x},{square_canvas.position_y}")
         if square_canvas.chess_square.has_value:
             print(f"Piece: {square_canvas.chess_square.piece.pieceType}")
@@ -118,11 +118,11 @@ class BoardWindow(tk.Tk):
                     self.chess_board.move(self.last_selected_piece.chess_square.piece,
                                           (square_canvas.position_x, square_canvas.position_y))
                     self.create_board(self.chess_board)
+                    self.chess_board.turn = 'white' if self.chess_board.turn == 'black' else 'black'
+
         # Select the new
-        if square_canvas.chess_square.has_value:
+        if square_canvas.chess_square.has_value and square_canvas.chess_square.piece.color == self.chess_board.turn:
             self.last_selected_piece = square_canvas
             self.last_selected_piece.is_highlighted = True
             self.possible_moves_list = self.movement_functions[self.last_selected_piece.chess_square.piece.pieceType](self.last_selected_piece.chess_square.piece)
-
             self.highlight_squares()
-    # Movement parts handling

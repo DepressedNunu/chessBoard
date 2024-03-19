@@ -1,3 +1,5 @@
+import random
+
 import numpy as np
 
 from src.Models.chess_square import ChessSquare
@@ -49,6 +51,8 @@ class ChessBoard:
         self.board = np.array([[ChessSquare(i, j) for i in range(8)] for j in range(8)], dtype=object)
         self.setup_pieces()
         self.last_selected_piece = None
+        self.turn = random.randint(0, 1) == 0 and 'white' or 'black'
+        print(f"Turn: {self.turn}")
 
     def setup_pieces(self):
         for piece in starting_pieces_list:
