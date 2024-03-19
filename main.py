@@ -1,9 +1,5 @@
-from Models import *
-import tkinter as tk
-import keyboard
-from Models.Chess import ChessBoard
-from Models.piece import Piece
-from Models.piece import PieceType
+from src.Models.chess_board import ChessBoard
+from src_view.board import BoardWindow
 
 if __name__ == "__main__":
     chess_board = ChessBoard()
