@@ -16,17 +16,23 @@ class PieceType(Enum):
     KING_BLACK = 6
 
 
+
+class Position:
+    def __init__(self, x: int, y: int):
+        self.x = x
+        self.y = y
+
+
 class Piece:
     pieceType = PieceType
-    position = tuple()
     path = str()
     color = str()
 
     def __getitem__(self, item):
         return self
 
-    def __init__(self, pieceType: PieceType, position: tuple):
-        pathList = [
+    def __init__(self, piece_type: PieceType, position: Position):
+        path_list = [
             "images/WHITE/white_pawn.png",
             "images/WHITE/white_tower.png",
             "images/WHITE/white_horse.png",
@@ -40,17 +46,14 @@ class Piece:
             "images/BLACK/black_queen.png",
             "images/BLACK/black_king.png"
         ]
-        if pieceType.value < 0:
-            self.path = pathList[abs(pieceType.value) - 1]  # only the white pieces are negative
+        if piece_type.value < 0:
+            self.path = path_list[abs(piece_type.value) - 1]  # only the white pieces are negative
             self.color = "black"
         else:
-            self.path = pathList[abs(pieceType.value) - 1 + 6]
+            self.path = path_list[abs(piece_type.value) - 1 + 6]
             self.color = "white"
-        self.pieceType = pieceType
+        self.pieceType = piece_type
         self.position = position
-
-    def move(self, new_position):
-        self.position = new_position
 
     def get_position(self):
         return self.position

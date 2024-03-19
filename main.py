@@ -1,11 +1,7 @@
-from src.Models.ChessBoard import ChessBoard
-from src.Models.piece import Piece
-from src.Models.piece import PieceType
+from src.Models.chess_board import ChessBoard
+from src_view.board import BoardWindow
 
-if __name__ == '__main__':
-    board = ChessBoard()
-    board.display_board()
-    print("\n===========================================\n")
-    pawn = Piece(PieceType.pawnBlack, (1, 1))
-    print(pawn.pieceType.value)
-    print(pawn.path)
+if __name__ == "__main__":
+    chess_board = ChessBoard()
+    app = BoardWindow(chess_board)
+    app.mainloop()
