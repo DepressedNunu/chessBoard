@@ -100,11 +100,11 @@ class ChessBoard:
         return possible_moves
 
     def is_empty_square(self, row, col):
-        return self.is_valid_position(row, col) and self.chess_board.board[row][col].piece is None
+        return self.is_valid_position(row, col) and self.board[row][col].piece is None
 
     def is_ennemy_piece(self, row, col, color):
-        return self.is_valid_position(row, col) and self.chess_board.board[row][col].piece is not None and \
-            self.chess_board.board[row][col].piece.color != color
+        return self.is_valid_position(row, col) and self.board[row][col].piece is not None and \
+            self.board[row][col].piece.color != color
 
     @staticmethod
     def is_valid_position(row, col):
@@ -167,10 +167,7 @@ class ChessBoard:
         return possible_moves
 
     def get_possible_moves(self, selected_square: SquareCanvas):
-        if self.last_selected_piece:
-            if selected_square.chess_square.piece.color == self.last_selected_piece.chess_square.piece.color:  # if the square has a piece
-                self.possible_moves_list = self.movement_functions[selected_square.chess_square.piece.pieceType](
-                    selected_square.chess_square.piece)
+        return self.possible_moves_list
 
     def move(self, piece: Piece, new_position: tuple):
         old_row, old_col = piece.position.x, piece.position.y
@@ -187,5 +184,3 @@ class ChessBoard:
 
         self.last_selected_piece = None
         self.possible_moves_list = None
-        self.unhighlight_squares()
-        self.create_board(self.chess_board)

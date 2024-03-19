@@ -58,6 +58,7 @@ class BoardWindow(tk.Tk):
     def __init__(self, chess_board: chess_board):
         super().__init__()
         self.chess_board = chess_board
+        self.possible_moves_list = []
 
         self.movement_functions = {
             PieceType.PAWN_WHITE: self.chess_board.pawn_possible_moves,
@@ -75,7 +76,6 @@ class BoardWindow(tk.Tk):
         }
 
         # Variables
-        self.possible_moves_list = []
 
         # Move variables
         self.new_position = None
@@ -117,11 +117,12 @@ class BoardWindow(tk.Tk):
                 if (square_canvas.position_y, square_canvas.position_x) in self.possible_moves_list:
                     self.chess_board.move(self.last_selected_piece.chess_square.piece,
                                           (square_canvas.position_x, square_canvas.position_y))
-
+                    self.create_board(self.chess_board)
         # Select the new
         if square_canvas.chess_square.has_value:
             self.last_selected_piece = square_canvas
             self.last_selected_piece.is_highlighted = True
-            self.possible_moves_list = self.chess_board.get_possible_moves(self.last_selected_piece)
+            self.possible_moves_list = self.movement_functions[self.last_selected_piece.chess_square.piece.pieceType](self.last_selected_piece.chess_square.piece)
+
             self.highlight_squares()
     # Movement parts handling
