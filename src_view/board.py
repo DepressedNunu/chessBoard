@@ -121,7 +121,7 @@ class BoardWindow(tk.Tk):
                     self.chess_board.turn = 'white' if self.chess_board.turn == 'black' else 'black'
 
         # Select the new
-        if square_canvas.chess_square.has_value and square_canvas.chess_square.piece.color == self.chess_board.turn:
+        if square_canvas.chess_square.has_value: #and square_canvas.chess_square.piece.color == self.chess_board.turn:
             self.last_selected_piece = square_canvas
             self.last_selected_piece.is_highlighted = True
             self.possible_moves_list = self.movement_functions[self.last_selected_piece.chess_square.piece.pieceType](self.last_selected_piece.chess_square.piece)
