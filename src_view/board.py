@@ -28,7 +28,9 @@ class SquareCanvas(tk.Canvas):
         if chess_square.has_value:
             self.display_piece(chess_square.piece)
         # Add coordinates text
-        self.create_text(50, 10, text=f'{self.position_x},{self.position_y}', fill='black')
+        self.create_text(10, 10, text=f"{chr(65 + self.position_x)}{8 - self.position_y}",
+                         font=("Arial", 12), fill="black")
+
         # Listen click
         self.bind("<Button-1>", self.on_square_clicked)
 
@@ -125,4 +127,4 @@ class BoardWindow(tk.Tk):
             self.last_selected_piece = square_canvas
             self.last_selected_piece.is_highlighted = True
             self.possible_moves_list = self.movement_functions[self.last_selected_piece.chess_square.piece.pieceType](self.last_selected_piece.chess_square.piece)
-            self.highlight_squares()
+            self.highlight_squares()    

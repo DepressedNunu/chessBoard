@@ -48,11 +48,12 @@ starting_pieces_list = [
 class ChessBoard:
     def __init__(self):
         self.possible_moves_list = []
+
         self.board = np.array([[ChessSquare(i, j) for i in range(8)] for j in range(8)], dtype=object)
+
         self.setup_pieces()
         self.last_selected_piece = None
         self.turn = random.randint(0, 1) == 0 and 'white' or 'black'
-        print(f"Turn: {self.turn}")
 
     def setup_pieces(self):
         for piece in starting_pieces_list:
@@ -170,15 +171,12 @@ class ChessBoard:
                         possible_moves.append((new_row, new_col))
         return possible_moves
 
-    def get_possible_moves(self, selected_square: SquareCanvas):
-        return self.possible_moves_list
-
     def move(self, piece: Piece, new_position: tuple):
         old_row, old_col = piece.position.x, piece.position.y
         new_row, new_col = new_position[1], new_position[0]
 
         print(f"Moving piece {piece.pieceType} from ({old_row}, {old_col}) to ({new_row}, {new_col})")
-
+        move_to_algebraic_notation = chr(ord('a') + new_col) + str(8 - new_row)
         piece.position.x, piece.position.y = new_row, new_col
 
         self.board[new_row][new_col].piece = piece
@@ -188,3 +186,5 @@ class ChessBoard:
 
         self.last_selected_piece = None
         self.possible_moves_list = None
+
+
