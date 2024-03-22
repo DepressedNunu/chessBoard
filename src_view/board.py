@@ -117,8 +117,7 @@ class BoardWindow(tk.Tk):
                 background=set_color(self.last_selected_piece.position_x, self.last_selected_piece.position_y))
             if self.possible_moves_list:
                 if (square_canvas.position_y, square_canvas.position_x) in self.possible_moves_list:
-                    self.chess_board.move(self.last_selected_piece.chess_square.piece,
-                                          (square_canvas.position_x, square_canvas.position_y))
+                    self.chess_board.move(self.last_selected_piece.chess_square.piece,(square_canvas.position_x, square_canvas.position_y))
                     self.create_board(self.chess_board)
                     self.chess_board.turn = 'white' if self.chess_board.turn == 'black' else 'black'
 
@@ -127,4 +126,4 @@ class BoardWindow(tk.Tk):
             self.last_selected_piece = square_canvas
             self.last_selected_piece.is_highlighted = True
             self.possible_moves_list = self.movement_functions[self.last_selected_piece.chess_square.piece.pieceType](self.last_selected_piece.chess_square.piece)
-            self.highlight_squares()    
+            self.highlight_squares()
