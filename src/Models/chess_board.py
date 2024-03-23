@@ -41,7 +41,7 @@ starting_pieces_list = [
     Piece(PieceType.ROOK_WHITE, Position(7, 7)),
 
     # test purposes
-    #Piece(PieceType.PAWN_BLACK, Position(5, 3))
+    # Piece(PieceType.PAWN_BLACK, Position(5, 3))
 ]
 
 
@@ -152,7 +152,10 @@ class ChessBoard:
         is_little_castle = True
         is_big_castle = True
 
-        if piece.position.x in [0, 7] and piece.position.y in [0, 7]:
+        if (self.board[0][0].piece.pieceType == PieceType.ROOK_BLACK or
+                self.board[7][0].piece.pieceType == PieceType.ROOK_BLACK or
+                self.board[0][7].piece.pieceType == PieceType.ROOK_WHITE or
+                self.board[7][7].piece.pieceType == PieceType.ROOK_WHITE):
             rook_is_default = True
 
         if (self.board[0][4].piece.pieceType == PieceType.KING_BLACK or self.board[7][4]
@@ -205,33 +208,36 @@ class ChessBoard:
                 if self.is_valid_position(new_row, new_col):
                     if self.is_empty_square(new_row, new_col) or self.is_ennemy_piece(new_row, new_col, piece.color):
                         possible_moves.append((new_row, new_col))
+
+        castling = self.castling(piece)
+        if castling is not None:
+            if castling == 'little_castle':
+                possible_moves.append((piece.position.x, 7))
+            if castling == 'big_castle':
+                possible_moves.append((piece.position.x, 0))
+
         return possible_moves
 
     def get_possible_moves(self, selected_square: SquareCanvas):
         return self.possible_moves_list
 
-    def handle_castle_move(self, piece: Piece, castle_type: bool):
-        if castle_type:
-            new_row, new_col = piece.position.x, 3
-            new_coll_king = 2
-        else:
-            new_row, new_col = piece.position.x, 5
-            new_coll_king = 6
-        old_row, old_col = piece.position.x, piece.position.y
+    def handle_castle_move(self, piece_tower: Piece, piece_king: Piece, castle_type: bool):
+        row = piece_tower.position.x
+        old_col_tower = piece_tower.position.y
+        old_col_king = piece_king.position.y
 
-        piece.position.x, piece.position.y = new_row, new_col
+        if castle_type:
+            new_col_tower = 3
+            new_col_king = 2
+        else:
+            new_col_tower = 5
+            new_col_king = 6
 
         # move tower
-        self.board[new_row][new_col].piece = piece
-        self.board[new_row][new_col].has_value = True
-        self.board[old_row][old_col].piece = None
-        self.board[old_row][old_col].has_value = False
+        self.handle_move(piece_tower, row, old_col_tower, row, new_col_tower)
 
         # move king
-        self.board[new_row][new_coll_king].piece = self.board[piece.position.x][4].piece
-        self.board[new_row][new_coll_king].has_value = True
-        self.board[old_row][4].piece = None
-        self.board[old_row][4].has_value = False
+        self.handle_move(piece_king, row, old_col_king, row, new_col_king)
 
         self.last_selected_piece = None
         self.possible_moves_list = None
@@ -239,21 +245,41 @@ class ChessBoard:
     def move(self, piece: Piece, new_position: tuple):
         special_move = self.castling(piece)
 
-        if special_move is not None:
-            self.handle_castle_move(piece, special_move == "big_castle")
-            return
+        if special_move:
+            if (piece.pieceType == PieceType.ROOK_WHITE or
+                    piece.pieceType == PieceType.ROOK_BLACK):
+                self.handle_castle_move(
+                    piece_tower=piece,
+                    piece_king=self.board[piece.position.x][4].piece,
+                    castle_type=special_move == "big_castle")
+                return
+            if (piece.pieceType == PieceType.KING_WHITE or
+                    piece.pieceType == PieceType.ROOK_BLACK):
+                if special_move == "big_castle":
+                    self.handle_castle_move(
+                        piece_tower=self.board[piece.position.x][0].piece,
+                        piece_king=piece,
+                        castle_type=special_move == "big_castle")
+                else:
+                    self.handle_castle_move(
+                        piece_tower=self.board[piece.position.x][7].piece,
+                        piece_king=piece,
+                        castle_type=special_move == "big_castle")
+                return
 
         new_row, new_col = new_position[1], new_position[0]
         old_row, old_col = piece.position.x, piece.position.y
 
         print(f"Moving piece {piece.pieceType} from ({old_row}, {old_col}) to ({new_row}, {new_col})")
-
         piece.position.x, piece.position.y = new_row, new_col
 
+        self.last_selected_piece = None
+        self.possible_moves_list = None
+
+        self.handle_move(piece, old_row, old_col, new_row, new_col)
+
+    def handle_move(self, piece: Piece, old_row: int, old_col: int, new_row: int, new_col: int):
         self.board[new_row][new_col].piece = piece
         self.board[new_row][new_col].has_value = True
         self.board[old_row][old_col].piece = None
         self.board[old_row][old_col].has_value = False
-
-        self.last_selected_piece = None
-        self.possible_moves_list = None
