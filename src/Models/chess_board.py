@@ -187,4 +187,68 @@ class ChessBoard:
         self.last_selected_piece = None
         self.possible_moves_list = None
 
+    def check(self, color):
+        for row in self.board:
+            for square in row:
+                if square.piece is not None and square.piece.color != color:
+                    possible_moves = self.get_possible_moves(square.piece)
+                    for move in possible_moves:
+                        if self.board[move[0]][move[1]].piece is not None and \
+                                self.board[move[0]][move[1]].piece.pieceType == PieceType.KING_WHITE:
+                            return True
+        return False
 
+    def checkmate(self, color):
+        for row in self.board:
+            for square in row:
+                if square.piece is not None and square.piece.color == color:
+                    possible_moves = self.get_possible_moves(square.piece)
+                    for move in possible_moves:
+                        if self.is_valid_move(square.piece, move):
+                            return False
+        return True
+
+    def stalemate(self, color):
+        for row in self.board:
+            for square in row:
+                if square.piece is not None and square.piece.color == color:
+                    possible_moves = self.get_possible_moves(square.piece)
+                    for move in possible_moves:
+                        if self.is_valid_move(square.piece, move):
+                            return False
+        return True
+
+    def get_possible_moves(self, piece):
+        if piece.pieceType == PieceType.PAWN_BLACK or piece.pieceType == PieceType.PAWN_WHITE:
+            return self.pawn_possible_moves(piece)
+        if piece.pieceType == PieceType.ROOK_BLACK or piece.pieceType == PieceType.ROOK_WHITE:
+            return self.rook_possible_moves(piece)
+        if piece.pieceType == PieceType.BISHOP_BLACK or piece.pieceType == PieceType.BISHOP_WHITE:
+            return self.bishop_possible_moves(piece)
+        if piece.pieceType == PieceType.QUEEN_BLACK or piece.pieceType == PieceType.QUEEN_WHITE:
+            return self.queen_possible_moves(piece)
+        if piece.pieceType == PieceType.KNIGHT_BLACK or piece.pieceType == PieceType.KNIGHT_WHITE:
+            return self.knight_possible_moves(piece)
+        if piece.pieceType == PieceType.KING_BLACK or piece.pieceType == PieceType.KING_WHITE:
+            return self.king_possible_moves(piece)
+
+    def is_valid_move(self, piece, move):
+        possible_moves = self.get_possible_moves(piece)
+        return move in possible_moves
+
+    def win(self, color):
+        if self.checkmate(color):
+            return True
+        return False
+
+    def draw(self):
+        if self.stalemate('white') and self.stalemate('black'):
+            return True
+        return False
+
+    def winner(self):
+        if self.checkmate('white'):
+            return 'black'
+        if self.checkmate('black'):
+            return 'white'
+        return 'draw'
