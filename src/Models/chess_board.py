@@ -7,52 +7,55 @@ from src.Models.piece import Piece, PieceType, Position
 from src_view.board import SquareCanvas
 
 starting_pieces_list = [
-    Piece(PieceType.ROOK_BLACK, Position(0, 0)),
-    Piece(PieceType.KNIGHT_BLACK, Position(0, 1)),
-    Piece(PieceType.BISHOP_BLACK, Position(0, 2)),
-    Piece(PieceType.QUEEN_BLACK, Position(0, 3)),
-    Piece(PieceType.KING_BLACK, Position(0, 4)),
-    Piece(PieceType.BISHOP_BLACK, Position(0, 5)),
-    Piece(PieceType.KNIGHT_BLACK, Position(0, 6)),
-    Piece(PieceType.ROOK_BLACK, Position(0, 7)),
-    Piece(PieceType.PAWN_BLACK, Position(1, 0)),
-    Piece(PieceType.PAWN_BLACK, Position(1, 1)),
-    Piece(PieceType.PAWN_BLACK, Position(1, 2)),
-    Piece(PieceType.PAWN_BLACK, Position(1, 3)),
-    Piece(PieceType.PAWN_BLACK, Position(1, 4)),
-    Piece(PieceType.PAWN_BLACK, Position(1, 5)),
-    Piece(PieceType.PAWN_BLACK, Position(1, 6)),
-    Piece(PieceType.PAWN_BLACK, Position(1, 7)),
-    Piece(PieceType.PAWN_WHITE, Position(6, 0)),
-    Piece(PieceType.PAWN_WHITE, Position(6, 1)),
-    Piece(PieceType.PAWN_WHITE, Position(6, 2)),
-    Piece(PieceType.PAWN_WHITE, Position(6, 3)),
-    Piece(PieceType.PAWN_WHITE, Position(6, 4)),
-    Piece(PieceType.PAWN_WHITE, Position(6, 5)),
-    Piece(PieceType.PAWN_WHITE, Position(6, 6)),
-    Piece(PieceType.PAWN_WHITE, Position(6, 7)),
-    Piece(PieceType.ROOK_WHITE, Position(7, 0)),
-    Piece(PieceType.KNIGHT_WHITE, Position(7, 1)),
-    Piece(PieceType.BISHOP_WHITE, Position(7, 2)),
-    Piece(PieceType.QUEEN_WHITE, Position(7, 3)),
-    Piece(PieceType.KING_WHITE, Position(7, 4)),
-    Piece(PieceType.BISHOP_WHITE, Position(7, 5)),
-    Piece(PieceType.KNIGHT_WHITE, Position(7, 6)),
-    Piece(PieceType.ROOK_WHITE, Position(7, 7)),
-
-    # test purposes
-    # Piece(PieceType.PAWN_BLACK, Position(5, 3))
+    Piece(PieceType.ROOK, False, Position(0, 0)),
+    Piece(PieceType.KNIGHT, False, Position(0, 1)),
+    Piece(PieceType.BISHOP, False, Position(0, 2)),
+    Piece(PieceType.QUEEN, False, Position(0, 3)),
+    Piece(PieceType.KING, False, Position(0, 4)),
+    Piece(PieceType.BISHOP, False, Position(0, 5)),
+    Piece(PieceType.KNIGHT, False, Position(0, 6)),
+    Piece(PieceType.ROOK, False, Position(0, 7)),
+    Piece(PieceType.PAWN, False, Position(1, 0)),
+    Piece(PieceType.PAWN, False, Position(1, 1)),
+    Piece(PieceType.PAWN, False, Position(1, 2)),
+    Piece(PieceType.PAWN, False, Position(1, 3)),
+    Piece(PieceType.PAWN, False, Position(1, 4)),
+    Piece(PieceType.PAWN, False, Position(1, 5)),
+    Piece(PieceType.PAWN, False, Position(1, 6)),
+    Piece(PieceType.PAWN, False, Position(1, 7)),
+    Piece(PieceType.PAWN, True, Position(6, 0)),
+    Piece(PieceType.PAWN, True, Position(6, 1)),
+    Piece(PieceType.PAWN, True, Position(6, 2)),
+    Piece(PieceType.PAWN, True, Position(6, 3)),
+    Piece(PieceType.PAWN, True, Position(6, 4)),
+    Piece(PieceType.PAWN, True, Position(6, 5)),
+    Piece(PieceType.PAWN, True, Position(6, 6)),
+    Piece(PieceType.PAWN, True, Position(6, 7)),
+    Piece(PieceType.ROOK, True, Position(7, 0)),
+    Piece(PieceType.KNIGHT, True, Position(7, 1)),
+    Piece(PieceType.BISHOP, True, Position(7, 2)),
+    Piece(PieceType.QUEEN, True, Position(7, 3)),
+    Piece(PieceType.KING, True, Position(7, 4)),
+    Piece(PieceType.BISHOP, True, Position(7, 5)),
+    Piece(PieceType.KNIGHT, True, Position(7, 6)),
+    Piece(PieceType.ROOK, True, Position(7, 7)),
 ]
 
 
 class ChessBoard:
-    def __init__(self):
+    def __init__(self, board_state=None):
         self.possible_moves_list = []
         self.board = np.array([[ChessSquare(i, j) for i in range(8)] for j in range(8)], dtype=object)
         self.setup_pieces()
         self.last_selected_piece = None
+
         # self.turn = random.randint(0, 1) == 0 and 'white' or 'black'
         # print(f"Turn: {self.turn}")
+
+        if not board_state:
+            self.board_sates = [self.board.copy()]
+        else:
+            self.board_sates = board_state
 
     def setup_pieces(self):
         for piece in starting_pieces_list:
@@ -60,6 +63,13 @@ class ChessBoard:
             square = self.board[x][y]
             square.piece = piece
             square.has_value = True
+
+    def save_board(self):
+        self.board_sates.append(self.board)
+
+        print("Saving board: " + str(len(self.board_sates)))
+
+        return self.board_sates
 
     def get_linear_moves(self, piece, directions) -> []:
         """
@@ -147,20 +157,21 @@ class ChessBoard:
         return possibles_moves  # , special_move) if special_move is not None else possibles_moves
 
     def castling(self, piece: Piece):
-        rook_is_default = False
-        king_is_default = False
+        if not (piece.pieceType == PieceType.ROOK or piece.pieceType == PieceType.KING):
+            return None
+
         is_little_castle = True
         is_big_castle = True
 
-        if (self.board[0][0].piece.pieceType == PieceType.ROOK_BLACK or
-                self.board[7][0].piece.pieceType == PieceType.ROOK_BLACK or
-                self.board[0][7].piece.pieceType == PieceType.ROOK_WHITE or
-                self.board[7][7].piece.pieceType == PieceType.ROOK_WHITE):
-            rook_is_default = True
+        corners = [(0, 0), (7, 0), (0, 7), (7, 7)]
+        rook_is_default = any(self.board[x][y].piece.pieceType == PieceType.ROOK for x, y in corners)
+        if rook_is_default:
+            print("rook is default")
 
-        if (self.board[0][4].piece.pieceType == PieceType.KING_BLACK or self.board[7][4]
-                .piece.pieceType == PieceType.KING_WHITE):
-            king_is_default = True
+        default_king_positions = [(0, 4), (7, 4)]
+        king_is_default = any(self.board[x][y].piece.pieceType == PieceType.KING for x, y in default_king_positions)
+        if king_is_default:
+            print("King is default")
 
         little_castle = self.board[piece.position.x, 5:7]
         big_castle = self.board[piece.position.x, 1:4]
@@ -174,8 +185,10 @@ class ChessBoard:
                 is_big_castle = False
 
         if rook_is_default and king_is_default and is_big_castle:
+            print("is big castle")
             return "big_castle"
         elif rook_is_default and king_is_default and is_little_castle:
+            print("is little castle")
             return "little_castle"
         else:
             return None
@@ -222,7 +235,7 @@ class ChessBoard:
         return self.possible_moves_list
 
     def handle_castle_move(self, piece_tower: Piece, piece_king: Piece, castle_type: bool):
-        row = piece_tower.position.x
+        row = piece_king.position.x
         old_col_tower = piece_tower.position.y
         old_col_king = piece_king.position.y
 
@@ -235,50 +248,40 @@ class ChessBoard:
 
         # move tower
         self.handle_move(piece_tower, row, old_col_tower, row, new_col_tower)
-
         # move king
         self.handle_move(piece_king, row, old_col_king, row, new_col_king)
 
-        self.last_selected_piece = None
-        self.possible_moves_list = None
+        self.save_board()
 
     def move(self, piece: Piece, new_position: tuple):
         special_move = self.castling(piece)
 
         if special_move:
-            if (piece.pieceType == PieceType.ROOK_WHITE or
-                    piece.pieceType == PieceType.ROOK_BLACK):
-                self.handle_castle_move(
-                    piece_tower=piece,
-                    piece_king=self.board[piece.position.x][4].piece,
-                    castle_type=special_move == "big_castle")
+            print("is special move " + special_move)
+            if piece.pieceType == PieceType.ROOK:
+                piece_king = self.board[piece.position.x][4].piece
+                self.handle_castle_move(piece, piece_king, special_move == "big_castle")
                 return
-            if (piece.pieceType == PieceType.KING_WHITE or
-                    piece.pieceType == PieceType.ROOK_BLACK):
-                if special_move == "big_castle":
-                    self.handle_castle_move(
-                        piece_tower=self.board[piece.position.x][0].piece,
-                        piece_king=piece,
-                        castle_type=special_move == "big_castle")
-                else:
-                    self.handle_castle_move(
-                        piece_tower=self.board[piece.position.x][7].piece,
-                        piece_king=piece,
-                        castle_type=special_move == "big_castle")
+
+            if piece.pieceType == PieceType.KING:
+                piece_tower = self.board[new_position[0]][new_position[1]].piece
+                self.handle_castle_move(piece_tower, piece, special_move == "big_castle")
                 return
 
         new_row, new_col = new_position[1], new_position[0]
         old_row, old_col = piece.position.x, piece.position.y
 
-        print(f"Moving piece {piece.pieceType} from ({old_row}, {old_col}) to ({new_row}, {new_col})")
         piece.position.x, piece.position.y = new_row, new_col
+
+        self.handle_move(piece, old_row, old_col, new_row, new_col)
 
         self.last_selected_piece = None
         self.possible_moves_list = None
 
-        self.handle_move(piece, old_row, old_col, new_row, new_col)
+        self.save_board()
 
     def handle_move(self, piece: Piece, old_row: int, old_col: int, new_row: int, new_col: int):
+        print(f"Moving piece {piece.pieceType} from ({old_row}, {old_col}) to ({new_row}, {new_col})")
         self.board[new_row][new_col].piece = piece
         self.board[new_row][new_col].has_value = True
         self.board[old_row][old_col].piece = None

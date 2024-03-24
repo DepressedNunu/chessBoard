@@ -2,18 +2,12 @@ from enum import Enum
 
 
 class PieceType(Enum):
-    PAWN_WHITE = -1
-    ROOK_WHITE = -2
-    KNIGHT_WHITE = -3
-    BISHOP_WHITE = -4
-    QUEEN_WHITE = -5
-    KING_WHITE = -6
-    PAWN_BLACK = 1
-    ROOK_BLACK = 2
-    KNIGHT_BLACK = 3
-    BISHOP_BLACK = 4
-    QUEEN_BLACK = 5
-    KING_BLACK = 6
+    PAWN = 1
+    ROOK = 2
+    KNIGHT = 3
+    BISHOP = 4
+    QUEEN = 5
+    KING = 6
 
 
 class Position:
@@ -25,12 +19,13 @@ class Position:
 class Piece:
     pieceType = PieceType
     path = str()
-    color = str()
+    color = bool  # true = White
 
     def __getitem__(self, item):
         return self
 
-    def __init__(self, piece_type: PieceType, position: Position):
+    def __init__(self, piece_type: PieceType, color: bool, position: Position):
+        self.color = color
         path_list = [
             "images/WHITE/white_pawn.png",
             "images/WHITE/white_tower.png",
@@ -45,12 +40,11 @@ class Piece:
             "images/BLACK/black_queen.png",
             "images/BLACK/black_king.png"
         ]
-        if piece_type.value < 0:
-            self.path = path_list[abs(piece_type.value) - 1]  # only the white pieces are negative
-            self.color = "black"
-        else:
-            self.path = path_list[abs(piece_type.value) - 1 + 6]
-            self.color = "white"
+        color_path = 0
+        if not color:
+            color_path = 6
+
+        self.path = path_list[abs(piece_type.value) - 1 + color_path]
         self.pieceType = piece_type
         self.position = position
 

@@ -46,7 +46,7 @@ class BoardCanvas(tk.Canvas):
     def __init__(self, master, h, w, click_callback):
         super().__init__(master)
         self.configure(width=w, height=h)
-        self.grid(row=0, column=0)
+        #self.grid(row=0, column=0)
         self.click_callback = click_callback
 
     def add_square(self, chess_square: ChessSquare, click_callback):
@@ -61,29 +61,38 @@ class BoardWindow(tk.Tk):
         self.possible_moves_list = []
 
         self.movement_functions = {
-            PieceType.PAWN_WHITE: self.chess_board.pawn_possible_moves,
-            PieceType.PAWN_BLACK: self.chess_board.pawn_possible_moves,
-            PieceType.ROOK_WHITE: self.chess_board.rook_possible_moves,
-            PieceType.ROOK_BLACK: self.chess_board.rook_possible_moves,
-            PieceType.KNIGHT_WHITE: self.chess_board.knight_possible_moves,
-            PieceType.KNIGHT_BLACK: self.chess_board.knight_possible_moves,
-            PieceType.BISHOP_WHITE: self.chess_board.bishop_possible_moves,
-            PieceType.BISHOP_BLACK: self.chess_board.bishop_possible_moves,
-            PieceType.QUEEN_WHITE: self.chess_board.queen_possible_moves,
-            PieceType.QUEEN_BLACK: self.chess_board.queen_possible_moves,
-            PieceType.KING_WHITE: self.chess_board.king_possible_moves,
-            PieceType.KING_BLACK: self.chess_board.king_possible_moves
+            PieceType.PAWN: self.chess_board.pawn_possible_moves,
+            PieceType.ROOK: self.chess_board.rook_possible_moves,
+            PieceType.KNIGHT: self.chess_board.knight_possible_moves,
+            PieceType.BISHOP: self.chess_board.bishop_possible_moves,
+            PieceType.QUEEN: self.chess_board.queen_possible_moves,
+            PieceType.KING: self.chess_board.king_possible_moves,
         }
 
-        # Variables
-
-        # Move variables
+        # variables
         self.new_position = None
         self.last_selected_piece = None
 
         self.title("Chess Board")
-        self.board = BoardCanvas(self, 800, 800, self.handle_square_click)
+
+        self.board_frame = tk.Frame(self)
+        self.board_frame.grid(row=0, column=0, sticky="nsew")
+
+        self.board = BoardCanvas(self.board_frame, 800, 800, self.handle_square_click)
+        self.board.pack(fill="both", expand=True)
+
         self.create_board(chess_board)
+
+        self.action_button = TkButton(self, "Perform Action", self.perform_action)
+        self.action_button.grid(row=0, column=1, padx=10, pady=10, sticky="nw")
+
+        self.grid_columnconfigure(0, weight=1)
+        self.grid_columnconfigure(1, weight=0)
+        self.grid_rowconfigure(0, weight=1)
+
+    @staticmethod
+    def perform_action(self):
+        print("Performing an action with the chess board...")
 
     def create_board(self, board: chess_board):
         for i in range(8):
@@ -118,7 +127,7 @@ class BoardWindow(tk.Tk):
                     self.chess_board.move(self.last_selected_piece.chess_square.piece,
                                           (square_canvas.position_x, square_canvas.position_y))
                     self.create_board(self.chess_board)
-                    self.chess_board.turn = 'white' if self.chess_board.turn == 'black' else 'black'
+                    #self.chess_board.turn = 'white' if self.chess_board.turn == 'black' else 'black'
 
         # Select the new
         if square_canvas.chess_square.has_value: #and square_canvas.chess_square.piece.color == self.chess_board.turn:
@@ -126,3 +135,15 @@ class BoardWindow(tk.Tk):
             self.last_selected_piece.is_highlighted = True
             self.possible_moves_list = self.movement_functions[self.last_selected_piece.chess_square.piece.pieceType](self.last_selected_piece.chess_square.piece)
             self.highlight_squares()
+
+
+class TkButton(tk.Button):
+    def __init__(self, master, text, action=None):
+        super().__init__(master, text=text, command=self.on_button_clicked)
+        self.action = action
+
+    def on_button_clicked(self):
+        if self.action:
+            self.action()
+        else:
+            print("Button clicked!")
