@@ -63,18 +63,12 @@ class BoardWindow(tk.Tk):
         self.possible_moves_list = []
 
         self.movement_functions = {
-            PieceType.PAWN_WHITE: self.chess_board.pawn_possible_moves,
-            PieceType.PAWN_BLACK: self.chess_board.pawn_possible_moves,
-            PieceType.ROOK_WHITE: self.chess_board.rook_possible_moves,
-            PieceType.ROOK_BLACK: self.chess_board.rook_possible_moves,
-            PieceType.KNIGHT_WHITE: self.chess_board.knight_possible_moves,
-            PieceType.KNIGHT_BLACK: self.chess_board.knight_possible_moves,
-            PieceType.BISHOP_WHITE: self.chess_board.bishop_possible_moves,
-            PieceType.BISHOP_BLACK: self.chess_board.bishop_possible_moves,
-            PieceType.QUEEN_WHITE: self.chess_board.queen_possible_moves,
-            PieceType.QUEEN_BLACK: self.chess_board.queen_possible_moves,
-            PieceType.KING_WHITE: self.chess_board.king_possible_moves,
-            PieceType.KING_BLACK: self.chess_board.king_possible_moves
+            PieceType.PAWN: self.chess_board.pawn_possible_moves,
+            PieceType.ROOK: self.chess_board.rook_possible_moves,
+            PieceType.KNIGHT: self.chess_board.knight_possible_moves,
+            PieceType.BISHOP: self.chess_board.bishop_possible_moves,
+            PieceType.QUEEN: self.chess_board.queen_possible_moves,
+            PieceType.KING: self.chess_board.king_possible_moves
         }
 
         # Variables

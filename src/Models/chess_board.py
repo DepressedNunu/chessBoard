@@ -3,45 +3,44 @@ import random
 import numpy as np
 
 from src.Models.chess_square import ChessSquare
+from src.Models.moves import Move
 from src.Models.piece import Piece, PieceType, Position
+from src_view import board
 from src_view.board import SquareCanvas
 
 pieces_list = [
-    # test purposes
-    Piece(PieceType.BISHOP_BLACK, Position(5, 3), False),
-
-    Piece(PieceType.ROOK_BLACK, Position(0, 0), False),
-    Piece(PieceType.KNIGHT_BLACK, Position(0, 1), False),
-    Piece(PieceType.BISHOP_BLACK, Position(0, 2), False),
-    Piece(PieceType.QUEEN_BLACK, Position(0, 3), False),
-    Piece(PieceType.KING_BLACK, Position(0, 4), False),
-    Piece(PieceType.BISHOP_BLACK, Position(5, 3), False),
-    Piece(PieceType.KNIGHT_BLACK, Position(0, 6), False),
-    Piece(PieceType.ROOK_BLACK, Position(0, 7), False),
-    Piece(PieceType.PAWN_BLACK, Position(1, 0), False),
-    Piece(PieceType.PAWN_BLACK, Position(1, 1), False),
-    Piece(PieceType.PAWN_BLACK, Position(1, 2), False),
-    Piece(PieceType.PAWN_BLACK, Position(1, 3), False),
-    Piece(PieceType.PAWN_BLACK, Position(1, 4), False),
-    Piece(PieceType.PAWN_BLACK, Position(1, 5), False),
-    Piece(PieceType.PAWN_BLACK, Position(1, 6), False),
-    Piece(PieceType.PAWN_BLACK, Position(1, 7), False),
-    Piece(PieceType.PAWN_WHITE, Position(6, 0), True),
-    Piece(PieceType.PAWN_WHITE, Position(6, 1), True),
-    Piece(PieceType.PAWN_WHITE, Position(6, 2), True),
-    Piece(PieceType.PAWN_WHITE, Position(6, 3), True),
-    Piece(PieceType.PAWN_WHITE, Position(6, 4), True),
-    Piece(PieceType.PAWN_WHITE, Position(6, 5), True),
-    Piece(PieceType.PAWN_WHITE, Position(6, 6), True),
-    Piece(PieceType.PAWN_WHITE, Position(6, 7), True),
-    Piece(PieceType.ROOK_WHITE, Position(7, 0), True),
-    Piece(PieceType.KNIGHT_WHITE, Position(7, 1), True),
-    Piece(PieceType.BISHOP_WHITE, Position(7, 2), True),
-    Piece(PieceType.QUEEN_WHITE, Position(7, 3), True),
-    Piece(PieceType.KING_WHITE, Position(7, 4), True),
-    Piece(PieceType.BISHOP_WHITE, Position(7, 5), True),
-    Piece(PieceType.KNIGHT_WHITE, Position(7, 6), True),
-    Piece(PieceType.ROOK_WHITE, Position(7, 7), True),
+    Piece(PieceType.ROOK, Position(0, 0), False),
+    Piece(PieceType.KNIGHT, Position(0, 1), False),
+    Piece(PieceType.BISHOP, Position(0, 2), False),
+    Piece(PieceType.QUEEN, Position(0, 3), False),
+    Piece(PieceType.KING, Position(0, 4), False),
+    Piece(PieceType.BISHOP, Position(5, 3), False),
+    Piece(PieceType.KNIGHT, Position(0, 6), False),
+    Piece(PieceType.ROOK, Position(0, 7), False),
+    Piece(PieceType.PAWN, Position(1, 0), False),
+    Piece(PieceType.PAWN, Position(1, 1), False),
+    Piece(PieceType.PAWN, Position(1, 2), False),
+    Piece(PieceType.PAWN, Position(1, 3), False),
+    Piece(PieceType.PAWN, Position(1, 4), False),
+    Piece(PieceType.PAWN, Position(1, 5), False),
+    Piece(PieceType.PAWN, Position(1, 6), False),
+    Piece(PieceType.PAWN, Position(1, 7), False),
+    Piece(PieceType.PAWN, Position(6, 0), True),
+    Piece(PieceType.PAWN, Position(6, 1), True),
+    Piece(PieceType.PAWN, Position(6, 2), True),
+    Piece(PieceType.PAWN, Position(6, 3), True),
+    Piece(PieceType.PAWN, Position(6, 4), True),
+    Piece(PieceType.PAWN, Position(6, 5), True),
+    Piece(PieceType.PAWN, Position(6, 6), True),
+    Piece(PieceType.PAWN, Position(6, 7), True),
+    Piece(PieceType.ROOK, Position(7, 0), True),
+    Piece(PieceType.KNIGHT, Position(7, 1), True),
+    Piece(PieceType.BISHOP, Position(7, 2), True),
+    Piece(PieceType.QUEEN, Position(7, 3), True),
+    Piece(PieceType.KING, Position(7, 4), True),
+    Piece(PieceType.BISHOP, Position(7, 5), True),
+    Piece(PieceType.KNIGHT, Position(7, 6), True),
+    Piece(PieceType.ROOK, Position(7, 7), True),
 ]
 
 
@@ -52,7 +51,7 @@ class ChessBoard:
 
         self.board = np.array([[ChessSquare(i, j) for i in range(8)] for j in range(8)], dtype=object)
 
-        self.board_list = [self.board]
+        self.moves_list = []
 
         self.setup_pieces()
         self.last_selected_piece = None
@@ -109,6 +108,11 @@ class ChessBoard:
 
     def is_empty_square(self, row, col):
         return self.is_valid_position(row, col) and self.board[row][col].piece is None
+
+    def get_piece(self, row, col)->Piece | None:
+        if self.is_empty_square(row, col):
+            return None
+        return self.board[row][col].piece
 
     def is_ennemy_piece(self, row, col, color):
         return self.is_valid_position(row, col) and self.board[row][col].piece is not None and \
@@ -180,7 +184,17 @@ class ChessBoard:
         new_row, new_col = new_position[1], new_position[0]
 
         print(f"Moving piece {piece.pieceType} from ({old_row}, {old_col}) to ({new_row}, {new_col})")
-        move_to_algebraic_notation = chr(ord('a') + new_col) + str(8 - new_row)
+
+        captured_piece = self.get_piece(new_row, new_col)
+
+        # algebraic_notation
+        move = Move(initial_position=Position(old_row, old_col),
+                    move_position=Position(new_row, new_col),
+                    piece=piece,
+                    captured_piece=captured_piece)
+
+        algebraic_notation = move.to_algebraic_notation()
+
         piece.position.x, piece.position.y = new_row, new_col
 
         self.board[new_row][new_col].piece = piece
@@ -191,36 +205,25 @@ class ChessBoard:
         self.last_selected_piece = None
         self.possible_moves_list = None
 
-        self.save_board()
+        print("move : ", algebraic_notation)
+
+        # self.save_move(move)
 
     def get_possible_moves(self, piece: Piece):
-        if piece.pieceType == PieceType.KING_BLACK or piece.pieceType == PieceType.KING_WHITE:
+        if piece.pieceType == PieceType.KING:
             self.king_possible_moves(piece)
-        if piece.pieceType == PieceType.ROOK_BLACK or piece.pieceType == PieceType.ROOK_WHITE:
+        if piece.pieceType == PieceType.ROOK:
             self.rook_possible_moves(piece)
-        if piece.pieceType == PieceType.PAWN_BLACK or piece.pieceType == PieceType.PAWN_WHITE:
+        if piece.pieceType == PieceType.PAWN:
             self.pawn_possible_moves(piece)
-        if piece.pieceType == PieceType.BISHOP_BLACK or piece.pieceType == PieceType.BISHOP_WHITE:
+        if piece.pieceType == PieceType.BISHOP:
             self.bishop_possible_moves(piece)
-        if piece.pieceType == PieceType.KNIGHT_BLACK or piece.pieceType == PieceType.KNIGHT_WHITE:
+        if piece.pieceType == PieceType.KNIGHT:
             self.knight_possible_moves(piece)
-        if piece.pieceType == PieceType.QUEEN_BLACK or piece.pieceType == PieceType.QUEEN_WHITE:
+        if piece.pieceType == PieceType.QUEEN:
             self.queen_possible_moves(piece)
 
         return self.possible_moves_list
 
-    def check_(self, piece: Piece, king_possibles_moves):
-        adversary_possible_moves = []
-        for pos_x, pos_y in king_possibles_moves:
-            possible_king = Piece(PieceType.KING_WHITE, Position(pos_x, pos_y), True)
-            pieces_list.append(possible_king)
-
-        for adversary_piece in pieces_list:
-            if adversary_piece.color != piece.color and adversary_piece.pieceType != PieceType.KING_BLACK:
-                p = self.get_possible_moves(adversary_piece)
-                print("adversary_possible_moves for ", adversary_piece.pieceType)
-                print(self.get_possible_moves(adversary_piece))
-
-    def save_board(self):
-        self.board_list.append(self.board)
-        print("number of played turns: ", len(self.board_list) - 1)
+    def save_move(self, move: Move):
+        self.moves_list.append(move)
