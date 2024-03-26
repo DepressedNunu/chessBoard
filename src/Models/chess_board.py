@@ -9,13 +9,11 @@ from src_view.board import SquareCanvas
 pieces_list = [
     # test purposes
     Piece(PieceType.BISHOP_BLACK, Position(5, 3), False),
-
     Piece(PieceType.ROOK_BLACK, Position(0, 0), False),
     Piece(PieceType.KNIGHT_BLACK, Position(0, 1), False),
     Piece(PieceType.BISHOP_BLACK, Position(0, 2), False),
     Piece(PieceType.QUEEN_BLACK, Position(0, 3), False),
     Piece(PieceType.KING_BLACK, Position(0, 4), False),
-    Piece(PieceType.BISHOP_BLACK, Position(5, 3), False),
     Piece(PieceType.KNIGHT_BLACK, Position(0, 6), False),
     Piece(PieceType.ROOK_BLACK, Position(0, 7), False),
     Piece(PieceType.PAWN_BLACK, Position(1, 0), False),
@@ -44,16 +42,17 @@ pieces_list = [
     Piece(PieceType.ROOK_WHITE, Position(7, 7), True),
 ]
 
+
 class ChessBoard:
     def __init__(self):
+        self.enemy_piece_moves = []
         self.possible_moves_list = []
         self.possible_kings_list = [pieces_list[28]]
 
         self.board = np.array([[ChessSquare(i, j) for i in range(8)] for j in range(8)], dtype=object)
-
         self.setup_pieces()
         self.last_selected_piece = None
-        self.turn = random.randint(0, 1) == 0
+        self.turn = 1
 
     def setup_pieces(self):
         for piece in pieces_list:
@@ -63,9 +62,6 @@ class ChessBoard:
             square.has_value = True
 
     def get_linear_moves(self, piece, directions):
-        """
-        Helper function to calculate possible moves for pieces that move in straight lines (rooks and queens).
-        """
         row, col = piece.position.x, piece.position.y
         possible_moves = []
         for drow, dcol in directions:
@@ -84,9 +80,6 @@ class ChessBoard:
         return possible_moves
 
     def get_diagonal_moves(self, piece, directions):
-        """
-        Helper function to calculate possible moves for pieces that move diagonally (bishops and queens).
-        """
         row, col = piece.position.x, piece.position.y
         possible_moves = []
         for drow, dcol in directions:
@@ -116,7 +109,6 @@ class ChessBoard:
         return 0 <= row < 8 and 0 <= col < 8
 
     def pawn_possible_moves(self, piece: Piece):
-        print(piece)
         row, col = piece.position.x, piece.position.y
         self.possible_moves_list = []
         pawn_direction = -1 if piece.color else 1
@@ -168,11 +160,12 @@ class ChessBoard:
                 if self.is_valid_position(new_row, new_col):
                     if self.is_empty_square(new_row, new_col) or self.is_ennemy_piece(new_row, new_col, piece.color):
                         possible_moves.append((new_row, new_col))
-
-        self.check_(piece, possible_moves)
         return possible_moves
 
     def move(self, piece: Piece, new_position: tuple):
+
+        fake_piece_list = pieces_list.copy()
+
         old_row, old_col = piece.position.x, piece.position.y
         new_row, new_col = new_position[1], new_position[0]
 
@@ -180,38 +173,84 @@ class ChessBoard:
         move_to_algebraic_notation = chr(ord('a') + new_col) + str(8 - new_row)
         piece.position.x, piece.position.y = new_row, new_col
 
+        # RIEN QUE CA BOUGE ICI
+        # if a piece was taken, remove it from the list
+        if self.board[new_row][new_col].piece is not None:
+            print(f"Piece taken: {self.board[new_row][new_col].piece.pieceType}")
+            fake_piece_list.remove(self.board[new_row][new_col].piece)
+            self.board[new_row][new_col].piece = None
+            self.board[new_row][new_col].has_value = False
+
         self.board[new_row][new_col].piece = piece
         self.board[new_row][new_col].has_value = True
         self.board[old_row][old_col].piece = None
         self.board[old_row][old_col].has_value = False
 
-        self.last_selected_piece = None
-        self.possible_moves_list = None
+        return fake_piece_list
 
     def get_possible_moves(self, piece: Piece):
         if piece.pieceType == PieceType.KING_BLACK or piece.pieceType == PieceType.KING_WHITE:
-            self.king_possible_moves(piece)
+            return self.king_possible_moves(piece)
         if piece.pieceType == PieceType.ROOK_BLACK or piece.pieceType == PieceType.ROOK_WHITE:
-            self.rook_possible_moves(piece)
+            return self.rook_possible_moves(piece)
         if piece.pieceType == PieceType.PAWN_BLACK or piece.pieceType == PieceType.PAWN_WHITE:
-            self.pawn_possible_moves(piece)
+            return self.pawn_possible_moves(piece)
         if piece.pieceType == PieceType.BISHOP_BLACK or piece.pieceType == PieceType.BISHOP_WHITE:
-            self.bishop_possible_moves(piece)
+            return self.bishop_possible_moves(piece)
         if piece.pieceType == PieceType.KNIGHT_BLACK or piece.pieceType == PieceType.KNIGHT_WHITE:
-            self.knight_possible_moves(piece)
+            return self.knight_possible_moves(piece)
         if piece.pieceType == PieceType.QUEEN_BLACK or piece.pieceType == PieceType.QUEEN_WHITE:
-            self.queen_possible_moves(piece)
+            return self.queen_possible_moves(piece)
 
-        return self.possible_moves_list
+    @staticmethod
+    def get_king(color):
+        for piece in pieces_list:
+            if piece.pieceType == PieceType.KING_BLACK or piece.pieceType == PieceType.KING_WHITE:
+                if piece.color == color:
+                    return piece
 
-    def check_(self, piece: Piece, king_possibles_moves):
-        adversary_possible_moves = []
-        for pos_x, pos_y in king_possibles_moves:
-            possible_king = Piece(PieceType.KING_WHITE, Position(pos_x, pos_y), True)
-            pieces_list.append(possible_king)
+    def is_check(self, color, copy_piece_list=None):
+        if copy_piece_list is None:
+            copy_piece_list = pieces_list
 
-        for adversary_piece in pieces_list:
-            if adversary_piece.color != piece.color and adversary_piece.pieceType != PieceType.KING_BLACK:
-                p = self.get_possible_moves(adversary_piece)
-                print("adversary_possible_moves for ", adversary_piece.pieceType)
-                print(self.get_possible_moves(adversary_piece))
+        king = self.get_king(color)
+        king_position = king.position.x, king.position.y
+        for piece in copy_piece_list:
+            if piece.color != color:
+                if piece.pieceType == PieceType.KNIGHT_BLACK:
+                    print(
+                        f"Horse found : {piece.position.x, piece.position.y}, possible moves: {self.knight_possible_moves(piece)}")
+                possible_moves = self.get_possible_moves(piece)
+                if king_position in possible_moves:
+                    print(f"King is in check by {piece.pieceType} at {piece.position.x, piece.position.y}")
+                    return True
+        print(f"King position: {king.position.x, king.position.y}")
+        return False
+
+    def copy(self):  # Make a deep copy of the board
+        new_board = ChessBoard()
+        for i in range(8):
+            for j in range(8):
+                new_board.board[i][j].piece = self.board[i][j].piece
+                new_board.board[i][j].has_value = self.board[i][j].has_value
+        return new_board
+
+    def filter_possible_moves(self, piece):
+        possible_moves = self.get_possible_moves(piece)
+        filtered_moves = []
+        old_position = piece.position.x, piece.position.y
+        new_board = self.copy()
+        for move in possible_moves:
+            fake_piece_list = new_board.move(piece, move)
+            if not new_board.is_check(piece.color, fake_piece_list):
+                filtered_moves.append(move)
+            new_board.move(piece, (old_position[1], old_position[0]))
+        self.possible_moves_list = filtered_moves
+        return filtered_moves
+
+    def is_checkmate(self, color):
+        for piece in pieces_list:
+            if piece.color == color:
+                if self.filter_possible_moves(piece):
+                    return False
+        return True
