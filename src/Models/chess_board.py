@@ -44,12 +44,15 @@ pieces_list = [
     Piece(PieceType.ROOK_WHITE, Position(7, 7), True),
 ]
 
+
 class ChessBoard:
     def __init__(self):
         self.possible_moves_list = []
         self.possible_kings_list = [pieces_list[28]]
 
         self.board = np.array([[ChessSquare(i, j) for i in range(8)] for j in range(8)], dtype=object)
+
+        self.board_list = [self.board]
 
         self.setup_pieces()
         self.last_selected_piece = None
@@ -188,6 +191,8 @@ class ChessBoard:
         self.last_selected_piece = None
         self.possible_moves_list = None
 
+        self.save_board()
+
     def get_possible_moves(self, piece: Piece):
         if piece.pieceType == PieceType.KING_BLACK or piece.pieceType == PieceType.KING_WHITE:
             self.king_possible_moves(piece)
@@ -215,3 +220,7 @@ class ChessBoard:
                 p = self.get_possible_moves(adversary_piece)
                 print("adversary_possible_moves for ", adversary_piece.pieceType)
                 print(self.get_possible_moves(adversary_piece))
+
+    def save_board(self):
+        self.board_list.append(self.board)
+        print("number of played turns: ", len(self.board_list) - 1)
