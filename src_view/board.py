@@ -28,7 +28,7 @@ class SquareCanvas(tk.Canvas):
         if chess_square.has_value:
             self.display_piece(chess_square.piece)
         # Add coordinates text
-        self.create_text(10, 10, text=f"{chr(65 + self.position_x)}{8 - self.position_y}",
+        self.create_text(50, 10, text=f"x:{self.position_x},y:{self.position_y}",
                          font=("Arial", 12), fill="black")
 
         # Listen click
@@ -119,7 +119,7 @@ class BoardWindow(tk.Tk):
                 if (square_canvas.position_y, square_canvas.position_x) in self.possible_moves_list:
                     self.chess_board.move(self.last_selected_piece.chess_square.piece,(square_canvas.position_x, square_canvas.position_y))
                     self.create_board(self.chess_board)
-                    self.chess_board.turn = 'white' if self.chess_board.turn == 'black' else 'black'
+                    self.chess_board.turn = not self.chess_board.turn
 
         # Select the new
         if square_canvas.chess_square.has_value and square_canvas.chess_square.piece.color == self.chess_board.turn:
