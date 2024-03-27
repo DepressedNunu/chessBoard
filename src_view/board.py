@@ -1,12 +1,14 @@
+import time
 import tkinter as tk
 from PIL import Image, ImageTk
 
 from src.Models import chess_board
 from src.Models.chess_square import ChessSquare
+from src.Models.ia import ia
 from src.Models.piece import Piece, PieceType
 
-white_square = "#18D9AC"
-black_square = "#BED8D2"
+white_square = "#BED8D2"
+black_square = "#18D9AC"
 highlight_square = "#91C73B"
 
 
@@ -63,6 +65,9 @@ class BoardWindow(tk.Tk):
         self.possible_moves_list = []
         self.geometry('1000x900+500+0')
 
+        # test IA
+        self.ia = ia(chess_board)
+
         self.movement_functions = {
             PieceType.PAWN_WHITE: self.chess_board.pawn_possible_moves,
             PieceType.PAWN_BLACK: self.chess_board.pawn_possible_moves,
@@ -108,25 +113,32 @@ class BoardWindow(tk.Tk):
                 square_canvas.config(background=set_color(square_canvas.position_x, square_canvas.position_y))
 
     def handle_square_click(self, square_canvas):
-        print(f"Square clicked: {square_canvas.position_x},{square_canvas.position_y}")
-        if square_canvas.chess_square.has_value:
-            print(f"Piece: {square_canvas.chess_square.piece.pieceType}")
-
         self.display_possible_positions(square_canvas)
 
         if self.last_selected_piece and self.last_selected_piece is not square_canvas:  # If a piece is selected
-            self.last_selected_piece.is_highlighted = False # Unselect the last piece
+            self.last_selected_piece.is_highlighted = False  # Unselect the last piece
             self.last_selected_piece.config(
                 background=set_color(self.last_selected_piece.position_x, self.last_selected_piece.position_y))
-
+            print(self.possible_moves_list)
             if self.possible_moves_list:
                 if (square_canvas.position_y, square_canvas.position_x) in self.possible_moves_list:
                     self.chess_board.move(self.last_selected_piece.chess_square.piece,
-                                          (square_canvas.position_x, square_canvas.position_y))
+                                          (square_canvas.position_y, square_canvas.position_x))
                     self.create_board(self.chess_board)
                     self.chess_board.turn = not self.chess_board.turn
+                    # IA move
+                    # self.ia.play(self.chess_board, self.chess_board.get_pieces(self.chess_board.turn))
+                    # self.create_board(self.chess_board)
+                    # self.chess_board.turn = not self.chess_board.turn
 
-        # Select the new
+        if self.chess_board.is_checkmate(self.chess_board.turn):
+            print("Checkmate!!!!!!!!!!!!!!!!!!!!!!!!")
+            checkmate_window = tk.Tk()
+            checkmate_window.title("Checkmate")
+            checkmate_window.geometry("200x200")
+            checkmate_label = tk.Label(checkmate_window, text="Checkmate!")
+            checkmate_label.pack()
+            checkmate_window.mainloop()
 
     def display_possible_positions(self, square_canvas):
         if square_canvas.chess_square.has_value and square_canvas.chess_square.piece.color == self.chess_board.turn:
@@ -137,5 +149,6 @@ class BoardWindow(tk.Tk):
             self.possible_moves_list = self.movement_functions[
                 self.last_selected_piece.chess_square.piece.pieceType](
                 self.last_selected_piece.chess_square.piece)
-            self.possible_moves_list =  self.chess_board.filter_possible_moves(self.last_selected_piece.chess_square.piece)
+            self.possible_moves_list = self.chess_board.filter_possible_moves(
+                self.last_selected_piece.chess_square.piece)
             self.highlight_squares()

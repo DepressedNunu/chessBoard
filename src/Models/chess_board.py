@@ -8,7 +8,7 @@ from src_view.board import SquareCanvas
 
 pieces_list = [
     # test purposes
-    Piece(PieceType.BISHOP_BLACK, Position(5, 3), False),
+    Piece(PieceType.BISHOP_BLACK, Position(0, 5), False),
     Piece(PieceType.ROOK_BLACK, Position(0, 0), False),
     Piece(PieceType.KNIGHT_BLACK, Position(0, 1), False),
     Piece(PieceType.BISHOP_BLACK, Position(0, 2), False),
@@ -167,16 +167,13 @@ class ChessBoard:
         fake_piece_list = pieces_list.copy()
 
         old_row, old_col = piece.position.x, piece.position.y
-        new_row, new_col = new_position[1], new_position[0]
+        new_row, new_col = new_position[0], new_position[1]
 
-        print(f"Moving piece {piece.pieceType} from ({old_row}, {old_col}) to ({new_row}, {new_col})")
-        move_to_algebraic_notation = chr(ord('a') + new_col) + str(8 - new_row)
         piece.position.x, piece.position.y = new_row, new_col
 
         # RIEN QUE CA BOUGE ICI
-        #if a piece was taken, remove it from the list
+        # if a piece was taken, remove it from the list
         if self.board[new_row][new_col].piece is not None:
-            print(f"Piece taken: {self.board[new_row][new_col].piece.pieceType}")
             fake_piece_list.remove(self.board[new_row][new_col].piece)
             self.board[new_row][new_col].piece = None
             self.board[new_row][new_col].has_value = False
@@ -217,14 +214,46 @@ class ChessBoard:
         king_position = king.position.x, king.position.y
         for piece in copy_piece_list:
             if piece.color != color:
-                if piece.pieceType == PieceType.KNIGHT_BLACK:
-                    print(f"Horse found : {piece.position.x, piece.position.y}, possible moves: {self.knight_possible_moves(piece)}")
                 possible_moves = self.get_possible_moves(piece)
                 if king_position in possible_moves:
-                    print(f"King is in check by {piece.pieceType} at {piece.position.x, piece.position.y}")
                     return True
         print(f"King position: {king.position.x, king.position.y}")
         return False
+
+    def is_checkmate(self, color):
+        for piece in pieces_list:
+            if piece.color == color: # if the piece is not the same color as the king
+                if self.filter_possible_moves(piece):
+                    print(f"Piece {piece.pieceType} in {piece.position.y, piece.position.x} can move: {self.get_possible_moves(piece)}")
+                    return False
+
+        print("Checkmate!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
+        print("Checkmate!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
+        print("Checkmate!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
+        print("Checkmate!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
+        print("Checkmate!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
+        print("Checkmate!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
+        print("Checkmate!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
+        print("Checkmate!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
+        print("Checkmate!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
+        print("Checkmate!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
+        print("Checkmate!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
+        print("Checkmate!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
+        print("Checkmate!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
+        print("Checkmate!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
+        print("Checkmate!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
+        print("Checkmate!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
+        print("Checkmate!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
+        print("Checkmate!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
+        return True
+
+    @staticmethod
+    def get_pieces(color):
+        color_pieces = []
+        for piece in pieces_list:
+            if piece.color == color:
+                color_pieces.append(piece)
+        return color_pieces
 
     def copy(self):  # Make a deep copy of the board
         new_board = ChessBoard()
@@ -243,6 +272,6 @@ class ChessBoard:
             fake_piece_list = new_board.move(piece, move)
             if not new_board.is_check(piece.color, fake_piece_list):
                 filtered_moves.append(move)
-            new_board.move(piece, (old_position[1], old_position[0]))
+            new_board.move(piece, (old_position[0], old_position[1]))
         self.possible_moves_list = filtered_moves
         return filtered_moves
