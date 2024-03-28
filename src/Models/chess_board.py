@@ -46,6 +46,7 @@ pieces_list = [
 
 class ChessBoard:
     def __init__(self):
+        self.enemy_piece_moves = []
         self.possible_moves_list = []
         self.possible_kings_list = [pieces_list[28]]
 
@@ -65,9 +66,6 @@ class ChessBoard:
             square.has_value = True
 
     def get_linear_moves(self, piece, directions):
-        """
-        Helper function to calculate possible moves for pieces that move in straight lines (rooks and queens).
-        """
         row, col = piece.position.x, piece.position.y
         possible_moves = []
         for drow, dcol in directions:
@@ -86,9 +84,6 @@ class ChessBoard:
         return possible_moves
 
     def get_diagonal_moves(self, piece, directions):
-        """
-        Helper function to calculate possible moves for pieces that move diagonally (bishops and queens).
-        """
         row, col = piece.position.x, piece.position.y
         possible_moves = []
         for drow, dcol in directions:
@@ -109,7 +104,7 @@ class ChessBoard:
     def is_empty_square(self, row, col):
         return self.is_valid_position(row, col) and self.board[row][col].piece is None
 
-    def get_piece(self, row, col)->Piece | None:
+    def get_piece(self, row, col) -> Piece | None:
         if self.is_empty_square(row, col):
             return None
         return self.board[row][col].piece
@@ -123,7 +118,6 @@ class ChessBoard:
         return 0 <= row < 8 and 0 <= col < 8
 
     def pawn_possible_moves(self, piece: Piece):
-        print(piece)
         row, col = piece.position.x, piece.position.y
         self.possible_moves_list = []
         pawn_direction = -1 if piece.color else 1
@@ -175,27 +169,26 @@ class ChessBoard:
                 if self.is_valid_position(new_row, new_col):
                     if self.is_empty_square(new_row, new_col) or self.is_ennemy_piece(new_row, new_col, piece.color):
                         possible_moves.append((new_row, new_col))
-
-        self.check_(piece, possible_moves)
         return possible_moves
 
     def move(self, piece: Piece, new_position: tuple):
+
+        fake_piece_list = pieces_list.copy()
+
         old_row, old_col = piece.position.x, piece.position.y
         new_row, new_col = new_position[1], new_position[0]
 
         print(f"Moving piece {piece.pieceType} from ({old_row}, {old_col}) to ({new_row}, {new_col})")
-
-        captured_piece = self.get_piece(new_row, new_col)
-
-        # algebraic_notation
-        move = Move(initial_position=Position(old_row, old_col),
-                    move_position=Position(new_row, new_col),
-                    piece=piece,
-                    captured_piece=captured_piece)
-
-        algebraic_notation = move.to_algebraic_notation()
-
+        move_to_algebraic_notation = chr(ord('a') + new_col) + str(8 - new_row)
         piece.position.x, piece.position.y = new_row, new_col
+
+        # RIEN QUE CA BOUGE ICI
+        # if a piece was taken, remove it from the list
+        if self.board[new_row][new_col].piece is not None:
+            print(f"Piece taken: {self.board[new_row][new_col].piece.pieceType}")
+            fake_piece_list.remove(self.board[new_row][new_col].piece)
+            self.board[new_row][new_col].piece = None
+            self.board[new_row][new_col].has_value = False
 
         self.board[new_row][new_col].piece = piece
         self.board[new_row][new_col].has_value = True
@@ -204,10 +197,6 @@ class ChessBoard:
 
         self.last_selected_piece = None
         self.possible_moves_list = None
-
-        print("move : ", algebraic_notation)
-
-        # self.save_move(move)
 
     def get_possible_moves(self, piece: Piece):
         if piece.pieceType == PieceType.KING:
@@ -222,8 +211,52 @@ class ChessBoard:
             self.knight_possible_moves(piece)
         if piece.pieceType == PieceType.QUEEN:
             self.queen_possible_moves(piece)
-
         return self.possible_moves_list
+
+    @staticmethod
+    def get_king(color):
+        for piece in pieces_list:
+            if piece.pieceType == PieceType.KING_BLACK or piece.pieceType == PieceType.KING_WHITE:
+                if piece.color == color:
+                    return piece
+
+    def is_check(self, color, copy_piece_list=None):
+        if copy_piece_list is None:
+            copy_piece_list = pieces_list
+
+        king = self.get_king(color)
+        king_position = king.position.x, king.position.y
+        for piece in copy_piece_list:
+            if piece.color != color:
+                if piece.pieceType == PieceType.KNIGHT_BLACK:
+                    print(
+                        f"Horse found : {piece.position.x, piece.position.y}, possible moves: {self.knight_possible_moves(piece)}")
+                possible_moves = self.get_possible_moves(piece)
+                if king_position in possible_moves:
+                    print(f"King is in check by {piece.pieceType} at {piece.position.x, piece.position.y}")
+                    return True
+        print(f"King position: {king.position.x, king.position.y}")
+        return False
+
+    def filter_possible_moves(self, piece):
+        possible_moves = self.get_possible_moves(piece)
+        filtered_moves = []
+        old_position = piece.position.x, piece.position.y
+        new_board = self.copy()
+        for move in possible_moves:
+            fake_piece_list = new_board.move(piece, move)
+            if not new_board.is_check(piece.color, fake_piece_list):
+                filtered_moves.append(move)
+            new_board.move(piece, (old_position[1], old_position[0]))
+        self.possible_moves_list = filtered_moves
+        return filtered_moves
 
     def save_move(self, move: Move):
         self.moves_list.append(move)
+
+    def is_checkmate(self, color):
+        for piece in pieces_list:
+            if piece.color == color:
+                if self.filter_possible_moves(piece):
+                    return False
+        return True
