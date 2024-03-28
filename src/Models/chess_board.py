@@ -217,34 +217,13 @@ class ChessBoard:
                 possible_moves = self.get_possible_moves(piece)
                 if king_position in possible_moves:
                     return True
-        print(f"King position: {king.position.x, king.position.y}")
         return False
 
     def is_checkmate(self, color):
         for piece in pieces_list:
             if piece.color == color: # if the piece is not the same color as the king
                 if self.filter_possible_moves(piece):
-                    print(f"Piece {piece.pieceType} in {piece.position.y, piece.position.x} can move: {self.get_possible_moves(piece)}")
                     return False
-
-        print("Checkmate!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
-        print("Checkmate!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
-        print("Checkmate!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
-        print("Checkmate!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
-        print("Checkmate!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
-        print("Checkmate!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
-        print("Checkmate!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
-        print("Checkmate!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
-        print("Checkmate!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
-        print("Checkmate!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
-        print("Checkmate!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
-        print("Checkmate!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
-        print("Checkmate!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
-        print("Checkmate!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
-        print("Checkmate!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
-        print("Checkmate!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
-        print("Checkmate!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
-        print("Checkmate!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
         return True
 
     @staticmethod

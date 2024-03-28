@@ -113,6 +113,7 @@ class BoardWindow(tk.Tk):
                 square_canvas.config(background=set_color(square_canvas.position_x, square_canvas.position_y))
 
     def handle_square_click(self, square_canvas):
+
         self.display_possible_positions(square_canvas)
 
         if self.last_selected_piece and self.last_selected_piece is not square_canvas:  # If a piece is selected
@@ -126,13 +127,12 @@ class BoardWindow(tk.Tk):
                                           (square_canvas.position_y, square_canvas.position_x))
                     self.create_board(self.chess_board)
                     self.chess_board.turn = not self.chess_board.turn
-                    # IA move
-                    # self.ia.play(self.chess_board, self.chess_board.get_pieces(self.chess_board.turn))
-                    # self.create_board(self.chess_board)
-                    # self.chess_board.turn = not self.chess_board.turn
 
+        #PSEUDO IA PART
+        # self.ia.play(self.chess_board, self.chess_board.get_pieces(self.chess_board.turn))
+        # self.create_board(self.chess_board)
+        # self.chess_board.turn = not self.chess_board.turn
         if self.chess_board.is_checkmate(self.chess_board.turn):
-            print("Checkmate!!!!!!!!!!!!!!!!!!!!!!!!")
             checkmate_window = tk.Tk()
             checkmate_window.title("Checkmate")
             checkmate_window.geometry("200x200")
