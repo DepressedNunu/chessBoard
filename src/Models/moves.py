@@ -1,5 +1,7 @@
 from enum import Enum
 
+import pandas as pd
+
 from src.Models.piece import Position, Piece
 
 
@@ -31,7 +33,7 @@ class Move:
         self.score = score
         self.captured_piece = captured_piece
 
-    def to_algebraic_notation(self):
+    def to_algebraic_notation(self) -> str:
         piece_letter = Algebraic_piece_name[self.piece.pieceType.name].value
         capture = ""
         if self.captured_piece is not None:
@@ -43,3 +45,23 @@ class Move:
         self.algebraic_notation = piece_letter + capture + chr(ord('a') + self.move_position.y) + str(
             8 - self.move_position.x)
         return self.algebraic_notation
+
+
+class GameMoves:
+    def __init__(self):
+        self.move_list = pd.DataFrame({
+            'Black': [],
+            'White': [],
+            'White_move_score': [],
+            'Black_move_score': []
+        }, columns=['Black', 'White', 'Black_move_score', 'White_move_score'])
+
+    def add_move(self, move: Move):
+        if move.color:  # if White
+            print(f"score {move.score}")
+            self.move_list.at[self.move_list.index[-1], 'White'] = move.to_algebraic_notation()
+            self.move_list.at[self.move_list.index[-1], 'White_move_score'] = move.score
+        else:
+            new_row = [move.to_algebraic_notation(), None, move.score, None]
+            self.move_list.loc[len(self.move_list)] = new_row
+        return self.move_list
