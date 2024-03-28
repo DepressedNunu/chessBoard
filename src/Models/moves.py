@@ -34,6 +34,10 @@ class Move:
         self.captured_piece = captured_piece
 
     def to_algebraic_notation(self) -> str:
+        print(self.color)
+        print(f"Position de mongoloer {self.initial_position.x}, {self.initial_position.y}")
+
+
         piece_letter = Algebraic_piece_name[self.piece.pieceType.name].value
         capture = ""
         if self.captured_piece is not None:
@@ -54,14 +58,13 @@ class GameMoves:
             'White': [],
             'White_move_score': [],
             'Black_move_score': []
-        }, columns=['Black', 'White', 'Black_move_score', 'White_move_score'])
+        }, columns=['White', 'Black', 'White_move_score', 'Black_move_score'])
 
     def add_move(self, move: Move):
         if move.color:  # if White
-            print(f"score {move.score}")
-            self.move_list.at[self.move_list.index[-1], 'White'] = move.to_algebraic_notation()
-            self.move_list.at[self.move_list.index[-1], 'White_move_score'] = move.score
-        else:
             new_row = [move.to_algebraic_notation(), None, move.score, None]
             self.move_list.loc[len(self.move_list)] = new_row
+        else:
+            self.move_list.at[self.move_list.index[-1], 'Black'] = move.to_algebraic_notation()
+            self.move_list.at[self.move_list.index[-1], 'Black_move_score'] = move.score
         return self.move_list
