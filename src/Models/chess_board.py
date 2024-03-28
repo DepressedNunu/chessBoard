@@ -3,7 +3,7 @@ import random
 import numpy as np
 
 from src.Models.chess_square import ChessSquare
-from src.Models.moves import Move
+from src.Models.moves import Move, GameMoves
 from src.Models.piece import Piece, PieceType, Position
 from src_view import board
 from src_view.board import SquareCanvas
@@ -58,6 +58,8 @@ class ChessBoard:
         self.last_selected_piece = None
         self.turn = random.randint(0, 1) == 0
 
+        self.game_moves = GameMoves()
+
     def setup_pieces(self):
         for piece in pieces_list:
             x, y = piece.position.x, piece.position.y
@@ -66,6 +68,9 @@ class ChessBoard:
             square.has_value = True
 
     def get_linear_moves(self, piece, directions):
+        """
+        Helper function to calculate possible moves for pieces that move in straight lines (rooks and queens).
+        """
         row, col = piece.position.x, piece.position.y
         possible_moves = []
         for drow, dcol in directions:
@@ -84,6 +89,9 @@ class ChessBoard:
         return possible_moves
 
     def get_diagonal_moves(self, piece, directions):
+        """
+        Helper function to calculate possible moves for pieces that move diagonally (bishops and queens).
+        """
         row, col = piece.position.x, piece.position.y
         possible_moves = []
         for drow, dcol in directions:
@@ -211,6 +219,7 @@ class ChessBoard:
             self.knight_possible_moves(piece)
         if piece.pieceType == PieceType.QUEEN:
             self.queen_possible_moves(piece)
+
         return self.possible_moves_list
 
     @staticmethod
