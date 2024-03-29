@@ -3,7 +3,7 @@ import random
 import numpy as np
 
 from src.Models.chess_square import ChessSquare
-from src.Models.moves import Move, GameMoves
+from src.Models.moves import GameMoves
 from src.Models.piece import Piece, PieceType, Position
 from src_view import board
 from src_view.board import SquareCanvas
@@ -166,7 +166,6 @@ class ChessBoard:
         return possible_moves
 
     def move(self, piece: Piece, new_position: tuple):
-
         fake_piece_list = pieces_list.copy()
 
         old_row, old_col = piece.position.x, piece.position.y
@@ -219,14 +218,12 @@ class ChessBoard:
                 possible_moves = self.get_possible_moves(piece)
                 if king_position in possible_moves:
                     return True
-        print(f"King position: {king.position.x, king.position.y}")
         return False
 
     def is_checkmate(self, color):
         for piece in pieces_list:
             if piece.color == color: # if the piece is not the same color as the king
                 if self.filter_possible_moves(piece):
-                    print(f"Piece {piece.pieceType} in {piece.position.y, piece.position.x} can move: {self.get_possible_moves(piece)}")
                     return False
         return True
 
