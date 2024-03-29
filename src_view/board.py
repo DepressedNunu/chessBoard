@@ -1,5 +1,7 @@
 import time
 import tkinter as tk
+
+import pandas as pd
 from PIL import Image, ImageTk
 
 from src.Models import chess_board
@@ -50,7 +52,7 @@ class BoardCanvas(tk.Canvas):
     def __init__(self, master, h, w, click_callback):
         super().__init__(master)
         self.configure(width=w, height=h)
-        self.grid(row=0, column=0)
+        self.grid(row=1, column=1)
         self.click_callback = click_callback
 
     def add_square(self, chess_square: ChessSquare, click_callback):
@@ -61,9 +63,10 @@ class BoardCanvas(tk.Canvas):
 class BoardWindow(tk.Tk):
     def __init__(self, chess_board: chess_board):
         super().__init__()
+        self.df_text = None
         self.chess_board = chess_board
         self.possible_moves_list = []
-        self.geometry('1000x900+500+0')
+        self.state("zoomed")
 
         # test IA
         self.ia = ia(chess_board)
@@ -83,15 +86,45 @@ class BoardWindow(tk.Tk):
             PieceType.KING_BLACK: self.chess_board.king_possible_moves
         }
 
-        # Variables
-
-        # Move variables
         self.new_position = None
         self.last_selected_piece = None
 
         self.title("Chess Board")
         self.board = BoardCanvas(self, 800, 800, self.handle_square_click)
         self.create_board(chess_board)
+
+        self.create_menu()
+        df = pd.DataFrame({'A': [9, 50], 'B': [51, 92]}, index=[1, 2])
+        self.create_df_affichage(df)
+
+        self.turn_label = tk.Label(self, text=f"Turn: {'White' if self.chess_board.turn else 'Black'}",
+                                   font=("Arial", 16))
+        self.turn_label.grid(row=0, column=1)
+
+    def create_menu(self):
+        menu_frame = tk.Frame(self)
+        menu_frame.grid(row=0, column=0, rowspan=2, padx=20)
+
+        jvj_button = tk.Button(menu_frame, text="Player vs Player")
+        jvj_button.grid(row=0, column=0, padx=10, pady=5, sticky="ew")
+
+        jvia_button = tk.Button(menu_frame, text="Player vs AI")
+        jvia_button.grid(row=1, column=0, padx=10, pady=5, sticky="ew")
+
+        iavia_button = tk.Button(menu_frame, text="AI vs AI")
+        iavia_button.grid(row=2, column=0, padx=10, pady=5, sticky="ew")
+
+    def create_df_affichage(self, df):
+        self.df_frame = tk.Frame(self)
+        self.df_frame.grid(row=0, column=2, rowspan= 2, ipadx= 10)
+
+        df_label = tk.Label(self.df_frame, text="Dataframe")
+        df_label.grid(row=0, column=0)
+
+        self.df_text = tk.Text(self.df_frame, height=50, width=30)
+        self.df_text.grid(row=1, column=0)
+        self.df_text.insert(tk.END, df.to_string())
+        self.df_text.config(state=tk.DISABLED)
 
     def create_board(self, board: chess_board):
         for i in range(8):
@@ -126,6 +159,7 @@ class BoardWindow(tk.Tk):
                                           (square_canvas.position_y, square_canvas.position_x))
                     self.create_board(self.chess_board)
                     self.chess_board.turn = not self.chess_board.turn
+
                     # IA move
                     # self.ia.play(self.chess_board, self.chess_board.get_pieces(self.chess_board.turn))
                     # self.create_board(self.chess_board)
