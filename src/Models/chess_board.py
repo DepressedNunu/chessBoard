@@ -172,15 +172,6 @@ class ChessBoard:
         old_row, old_col = piece.position.x, piece.position.y
         new_row, new_col = new_position[0], new_position[1]
 
-        # POUR ENREGISTER LE MOVE
-        move = Move(
-            Position(old_row, old_col),
-            Position(new_row, new_col),
-            piece,
-            self.board[new_row][new_col].piece
-        )
-        print(GameMoves().add_move(move))
-
         piece.position.x, piece.position.y = new_row, new_col
 
         # if a piece was taken, remove it from the list
