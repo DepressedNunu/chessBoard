@@ -88,18 +88,15 @@ class BoardWindow(tk.Tk):
 
         self.new_position = None
         self.last_selected_piece = None
-
-        self.title("Chess Board")
-        self.board = BoardCanvas(self, 800, 800, self.handle_square_click)
-        self.create_board(chess_board)
-
         self.create_menu()
         df = pd.DataFrame({'A': [9, 50], 'B': [51, 92]}, index=[1, 2])
         self.create_df_affichage(df)
-
         self.turn_label = tk.Label(self, text=f"Turn: {'White' if self.chess_board.turn else 'Black'}",
                                    font=("Arial", 16))
         self.turn_label.grid(row=0, column=1)
+        self.title("Chess Board")
+        self.board = BoardCanvas(self, 800, 800, self.handle_square_click)
+        self.create_board(chess_board)
 
     def create_menu(self):
         menu_frame = tk.Frame(self)
@@ -116,7 +113,7 @@ class BoardWindow(tk.Tk):
 
     def create_df_affichage(self, df):
         self.df_frame = tk.Frame(self)
-        self.df_frame.grid(row=0, column=2, rowspan= 2, ipadx= 10)
+        self.df_frame.grid(row=0, column=2, rowspan=2, ipadx=10)
 
         df_label = tk.Label(self.df_frame, text="Dataframe")
         df_label.grid(row=0, column=0)
