@@ -37,9 +37,6 @@ class Move:
         capture = ""
         if self.captured_piece is not None:
             capture = "x"
-            # if piece_letter == "":
-            #     capture = chr(ord('a') + self.initial_position.y) + "x"
-            # else:
 
         check_mate = ""
         check = ""
@@ -54,14 +51,29 @@ class Move:
 
 class GameMoves:
     def __init__(self):
-        self.move_df = pd.DataFrame({
-            'Black': [],
-            'White': [],
-            'White_move_score': [],
-            'Black_move_score': []
-        }, columns=['White', 'Black', 'White_move_score', 'Black_move_score'])
+        self.move_df = pd.DataFrame(columns=['White', 'Black', 'White_move_score', 'Black_move_score'], index=['Turns'])
+        self.df_import = pd.read_csv('saves/games_saves.csv', sep=';', index_col=0)
+
+    def get_df_with_winner(self, move: Move):
+        index = pd.MultiIndex.from_product([[1], ['Turns']], names=['Game', 'Info'])
+
+        winner_df = pd.DataFrame({
+            'White': ["winner" if move.color else "loser"],
+            'Black': ["winner" if not move.color else "loser"]
+        })
+
+        self.move_df = pd.concat([self.move_df, winner_df])
+
+        self.move_df.index = pd.MultiIndex.from_product([[1], self.move_df.index], names=['Game', 'Moves'])
+
+        return self.move_df
+
+    def insert_to_scv(self, move: Move):
+        self.df_import = pd.concat([self.df_import, self.get_df_with_winner(move)])
+        self.df_import.to_csv('saves/games_saves.csv', index=True, header=True, sep=';')
 
     def add_move(self, move: Move, is_check: bool, is_checkmate: bool):
+        print(self.df_import)
         if is_checkmate:
             is_check = False
         if is_check:
@@ -73,7 +85,7 @@ class GameMoves:
             # if White
             new_row = [move.to_algebraic_notation(is_check, is_checkmate), "None", move.score, None]
             if is_checkmate:
-                self.move_df.loc[len(self.move_df)-1] = new_row
+                self.move_df.loc[len(self.move_df) - 1] = new_row
             else:
                 self.move_df.loc[len(self.move_df)] = new_row
 

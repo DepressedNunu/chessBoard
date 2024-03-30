@@ -1,11 +1,10 @@
-import time
 import tkinter as tk
 from PIL import Image, ImageTk
 
 from src.Models import chess_board
 from src.Models.chess_square import ChessSquare
 from src.Models.ia import ia
-from src.Models.moves import Move, GameMoves
+from src.Models.moves import Move
 from src.Models.piece import Piece, PieceType, Position
 
 white_square = "#BED8D2"
@@ -139,6 +138,7 @@ class BoardWindow(tk.Tk):
             print(
                 self.chess_board.game_moves.add_move(move, self.chess_board.is_check(self.chess_board.turn),
                                                      self.chess_board.is_checkmate(self.chess_board.turn)))
+            self.chess_board.game_moves.insert_to_scv(move)
 
             checkmate_window = tk.Tk()
             checkmate_window.title("Checkmate")

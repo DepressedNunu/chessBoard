@@ -1,12 +1,8 @@
-import random
-
 import numpy as np
 
 from src.Models.chess_square import ChessSquare
 from src.Models.moves import GameMoves
 from src.Models.piece import Piece, PieceType, Position
-from src_view import board
-from src_view.board import SquareCanvas
 
 pieces_list = [
     Piece(PieceType.BISHOP, Position(0, 5), False),
