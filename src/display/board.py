@@ -1,3 +1,4 @@
+import time
 import tkinter as tk
 from PIL import Image, ImageTk
 
@@ -76,8 +77,13 @@ class BoardWindow(tk.Tk):
             PieceType.QUEEN: self.chess_board.queen_possible_moves,
             PieceType.KING: self.chess_board.king_possible_moves
         }
+
+        # Variables
+
+        # Move variables
         self.new_position = None
         self.last_selected_piece = None
+
         self.title("Chess Board")
         self.board = BoardCanvas(self, 800, 800, self.handle_square_click)
         self.create_board(chess_board)
@@ -104,12 +110,11 @@ class BoardWindow(tk.Tk):
     def handle_square_click(self, square_canvas):
         self.display_possible_positions(square_canvas)
 
-        move = None
-
         if self.last_selected_piece and self.last_selected_piece is not square_canvas:  # If a piece is selected
             self.last_selected_piece.is_highlighted = False  # Unselect the last piece
             self.last_selected_piece.config(
                 background=set_color(self.last_selected_piece.position_x, self.last_selected_piece.position_y))
+            print(self.possible_moves_list)
             if self.possible_moves_list:
                 if (square_canvas.position_y, square_canvas.position_x) in self.possible_moves_list:
                     # a ce moment on save le coup de con
@@ -129,11 +134,11 @@ class BoardWindow(tk.Tk):
 
                     self.create_board(self.chess_board)
                     self.chess_board.turn = not self.chess_board.turn
-                    # IA move
-                    # self.ia.play(self.chess_board, self.chess_board.get_pieces(self.chess_board.turn))
-                    # self.create_board(self.chess_board)
-                    # self.chess_board.turn = not self.chess_board.turn
 
+        #PSEUDO IA PART
+        # self.ia.play(self.chess_board, self.chess_board.get_pieces(self.chess_board.turn))
+        # self.create_board(self.chess_board)
+        # self.chess_board.turn = not self.chess_board.turn
         if self.chess_board.is_checkmate(self.chess_board.turn):
             print(
                 self.chess_board.game_moves.add_move(move, self.chess_board.is_check(self.chess_board.turn),

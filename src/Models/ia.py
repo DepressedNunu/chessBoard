@@ -22,9 +22,8 @@ class ia:
         list_move = None
         while move is None or list_move is None:
             piece = random.choice(piece_list)
-            list_move = board.get_possible_moves(piece)
+            list_move = board.filter_possible_moves(piece)
             if list_move is [] or list_move is None:
-                piece = None
                 continue
             move = list_move[0]
             move = (move[1], move[0])
