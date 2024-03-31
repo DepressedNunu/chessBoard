@@ -52,10 +52,10 @@ class Move:
 class GameMoves:
     def __init__(self):
         self.move_df = pd.DataFrame(columns=['White', 'Black', 'White_move_score', 'Black_move_score'], index=['Turns'])
-        self.df_import = pd.read_csv('saves/games_saves.csv', sep=';', index_col=0)
+        self.df_import = pd.read_csv('saves/games_saves.csv', sep=';', index_col=['Game', 'Moves'])
 
     def get_df_with_winner(self, move: Move):
-        index = pd.MultiIndex.from_product([[1], ['Turns']], names=['Game', 'Info'])
+        game_index = self.df_import.index.levels[0].values[-1]+1
 
         winner_df = pd.DataFrame({
             'White': ["winner" if move.color else "loser"],
@@ -63,9 +63,7 @@ class GameMoves:
         })
 
         self.move_df = pd.concat([self.move_df, winner_df])
-
-        self.move_df.index = pd.MultiIndex.from_product([[1], self.move_df.index], names=['Game', 'Moves'])
-
+        self.move_df.index = pd.MultiIndex.from_product([[game_index], self.move_df.index], names=['Game', 'Moves'])
         return self.move_df
 
     def insert_to_scv(self, move: Move):
@@ -73,7 +71,6 @@ class GameMoves:
         self.df_import.to_csv('saves/games_saves.csv', index=True, header=True, sep=';')
 
     def add_move(self, move: Move, is_check: bool, is_checkmate: bool):
-        print(self.df_import)
         if is_checkmate:
             is_check = False
         if is_check:
