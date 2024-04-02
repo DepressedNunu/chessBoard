@@ -67,6 +67,7 @@ class BoardWindow(tk.Tk):
         self.chess_board = chess_board
         self.possible_moves_list = []
         self.state("zoomed")
+        self.is_ia = False
 
         # test IA
         self.ia = ia(chess_board)
@@ -96,20 +97,23 @@ class BoardWindow(tk.Tk):
         self.turn_label.grid(row=0, column=1)
         self.title("Chess Board")
         self.board = BoardCanvas(self, 800, 800, self.handle_square_click)
-        self.create_board(chess_board)
 
     def create_menu(self):
         menu_frame = tk.Frame(self)
         menu_frame.grid(row=0, column=0, rowspan=2, padx=20)
 
-        jvj_button = tk.Button(menu_frame, text="Player vs Player")
+        jvj_button = tk.Button(menu_frame, text="Player vs Player", command=lambda: self.create_board(self.chess_board))
         jvj_button.grid(row=0, column=0, padx=10, pady=5, sticky="ew")
 
-        jvia_button = tk.Button(menu_frame, text="Player vs AI")
+        jvia_button = tk.Button(menu_frame, text="Player vs AI", command=lambda: self.call_ia())
         jvia_button.grid(row=1, column=0, padx=10, pady=5, sticky="ew")
 
-        iavia_button = tk.Button(menu_frame, text="AI vs AI")
+        iavia_button = tk.Button(menu_frame, text="AI vs AI", command=lambda: self.ia_vs_ia())
         iavia_button.grid(row=2, column=0, padx=10, pady=5, sticky="ew")
+
+    def call_ia(self):
+        self.is_ia = True
+        self.create_board(self.chess_board)
 
     def create_df_affichage(self, df):
         self.df_frame = tk.Frame(self)
@@ -157,10 +161,10 @@ class BoardWindow(tk.Tk):
                     self.create_board(self.chess_board)
                     self.chess_board.turn = not self.chess_board.turn
 
-                    # IA move
-                    # self.ia.play(self.chess_board, self.chess_board.get_pieces(self.chess_board.turn))
-                    # self.create_board(self.chess_board)
-                    # self.chess_board.turn = not self.chess_board.turn
+                    if self.is_ia:
+                        self.ia.play(self.chess_board, self.chess_board.get_pieces(self.chess_board.turn))
+                        self.create_board(self.chess_board)
+                        self.chess_board.turn = not self.chess_board.turn
 
         if self.chess_board.is_checkmate(self.chess_board.turn):
             print("Checkmate!!!!!!!!!!!!!!!!!!!!!!!!")
@@ -183,3 +187,31 @@ class BoardWindow(tk.Tk):
             self.possible_moves_list = self.chess_board.filter_possible_moves(
                 self.last_selected_piece.chess_square.piece)
             self.highlight_squares()
+
+    def ia_vs_ia(self):
+        ia_white = ia(self.chess_board)
+        ia_black = ia(self.chess_board)
+
+        while not self.chess_board.is_checkmate(True) and not self.chess_board.is_checkmate(False):
+            if self.chess_board.turn:
+                piece_list_white = self.chess_board.get_pieces(True)
+                ia_white.play(self.chess_board, piece_list_white)
+                self.create_board(self.chess_board)
+                self.chess_board.turn = not self.chess_board.turn
+                self.update()
+                time.sleep(1)
+
+            else:
+                piece_list_black = self.chess_board.get_pieces(False)
+                ia_black.play(self.chess_board, piece_list_black)
+                self.create_board(self.chess_board)
+                self.chess_board.turn = not self.chess_board.turn
+                self.update()
+                time.sleep(1)
+
+        if self.chess_board.is_checkmate(True):
+            print("Checkmate! Black wins!")
+        elif self.chess_board.is_checkmate(False):
+            print("Checkmate! White wins!")
+        else:
+            print("Draw!")
