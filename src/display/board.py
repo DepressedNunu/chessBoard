@@ -124,9 +124,9 @@ class BoardWindow(tk.Tk):
                         move_position=Position(square_canvas.position_y, square_canvas.position_x),
                         piece=self.last_selected_piece.chess_square.piece,
                         captured_piece=self.chess_board.board[square_canvas.position_y][square_canvas.position_x].piece)
-                    print(
+                    print(f"à la cool {
                         self.chess_board.game_moves.add_move(move, self.chess_board.is_check(self.chess_board.turn),
-                                                             self.chess_board.is_checkmate(self.chess_board.turn)))
+                                                             self.chess_board.is_checkmate(self.chess_board.turn))}")
 
                     # et la ça ma mouve hein
                     self.chess_board.move(self.last_selected_piece.chess_square.piece,
@@ -136,9 +136,9 @@ class BoardWindow(tk.Tk):
                     self.chess_board.turn = not self.chess_board.turn
 
         #PSEUDO IA PART
-        # self.ia.play(self.chess_board, self.chess_board.get_pieces(self.chess_board.turn))
-        # self.create_board(self.chess_board)
-        # self.chess_board.turn = not self.chess_board.turn
+        self.ia.play(self.chess_board, self.chess_board.get_pieces(self.chess_board.turn))
+        self.create_board(self.chess_board)
+        self.chess_board.turn = not self.chess_board.turn
         if self.chess_board.is_checkmate(self.chess_board.turn):
             print(
                 self.chess_board.game_moves.add_move(move, self.chess_board.is_check(self.chess_board.turn),
