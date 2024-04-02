@@ -1,6 +1,3 @@
-from src.Models.piece import Piece
-
-
 class ChessSquare:
     def __init__(self, x: int, y: int, piece=None) -> None:
         self.x: int = x
