@@ -1,13 +1,13 @@
 import time
 import tkinter as tk
-
 import pandas as pd
 from PIL import Image, ImageTk
 
 from src.Models import chess_board
 from src.Models.chess_square import ChessSquare
 from src.Models.ia import ia
-from src.Models.piece import Piece, PieceType
+from src.Models.moves import Move
+from src.Models.piece import Piece, PieceType, Position
 
 white_square = "#BED8D2"
 black_square = "#18D9AC"
@@ -157,6 +157,18 @@ class BoardWindow(tk.Tk):
             print(self.possible_moves_list)
             if self.possible_moves_list:
                 if (square_canvas.position_y, square_canvas.position_x) in self.possible_moves_list:
+                    # a ce moment on save le coup de con
+                    move = Move(
+                        initial_position=Position(self.last_selected_piece.position_y,
+                                                  self.last_selected_piece.position_x),
+                        move_position=Position(square_canvas.position_y, square_canvas.position_x),
+                        piece=self.last_selected_piece.chess_square.piece,
+                        captured_piece=self.chess_board.board[square_canvas.position_y][square_canvas.position_x].piece)
+                    print(f"à la cool {
+                        self.chess_board.game_moves.add_move(move, self.chess_board.is_check(self.chess_board.turn),
+                                                             self.chess_board.is_checkmate(self.chess_board.turn))}")
+
+                    # et la ça ma mouve hein
                     self.chess_board.move(self.last_selected_piece.chess_square.piece,
                                           (square_canvas.position_y, square_canvas.position_x))
                     self.create_board(self.chess_board)
@@ -168,7 +180,11 @@ class BoardWindow(tk.Tk):
                         self.chess_board.turn = not self.chess_board.turn
 
         if self.chess_board.is_checkmate(self.chess_board.turn):
-            print("Checkmate!!!!!!!!!!!!!!!!!!!!!!!!")
+            print(
+                self.chess_board.game_moves.add_move(move, self.chess_board.is_check(self.chess_board.turn),
+                                                     self.chess_board.is_checkmate(self.chess_board.turn)))
+            self.chess_board.game_moves.insert_to_scv(move)
+
             checkmate_window = tk.Tk()
             checkmate_window.title("Checkmate")
             checkmate_window.geometry("200x200")
