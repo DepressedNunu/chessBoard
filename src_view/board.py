@@ -97,6 +97,7 @@ class BoardWindow(tk.Tk):
         self.turn_label.grid(row=0, column=1)
         self.title("Chess Board")
         self.board = BoardCanvas(self, 800, 800, self.handle_square_click)
+        self.create_board(self.chess_board)
 
     def create_menu(self):
         menu_frame = tk.Frame(self)
