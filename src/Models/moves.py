@@ -29,6 +29,7 @@ class Move:
         self.move_position = move_position
         self.color = piece.color
         self.piece = piece
+        self.score = score
         self.captured_piece = captured_piece
 
     def to_algebraic_notation(self, is_check: bool, is_checkmate: bool) -> str:

@@ -73,12 +73,18 @@ class BoardWindow(tk.Tk):
         self.ia = ia(chess_board)
 
         self.movement_functions = {
-            PieceType.PAWN: self.chess_board.pawn_possible_moves,
-            PieceType.ROOK: self.chess_board.rook_possible_moves,
-            PieceType.KNIGHT: self.chess_board.knight_possible_moves,
-            PieceType.BISHOP: self.chess_board.bishop_possible_moves,
-            PieceType.QUEEN: self.chess_board.queen_possible_moves,
-            PieceType.KING: self.chess_board.king_possible_moves
+            PieceType.PAWN_WHITE: self.chess_board.pawn_possible_moves,
+            PieceType.PAWN_BLACK: self.chess_board.pawn_possible_moves,
+            PieceType.ROOK_WHITE: self.chess_board.rook_possible_moves,
+            PieceType.ROOK_BLACK: self.chess_board.rook_possible_moves,
+            PieceType.KNIGHT_WHITE: self.chess_board.knight_possible_moves,
+            PieceType.KNIGHT_BLACK: self.chess_board.knight_possible_moves,
+            PieceType.BISHOP_WHITE: self.chess_board.bishop_possible_moves,
+            PieceType.BISHOP_BLACK: self.chess_board.bishop_possible_moves,
+            PieceType.QUEEN_WHITE: self.chess_board.queen_possible_moves,
+            PieceType.QUEEN_BLACK: self.chess_board.queen_possible_moves,
+            PieceType.KING_WHITE: self.chess_board.king_possible_moves,
+            PieceType.KING_BLACK: self.chess_board.king_possible_moves
         }
 
         self.new_position = None
@@ -158,14 +164,13 @@ class BoardWindow(tk.Tk):
                         move_position=Position(square_canvas.position_y, square_canvas.position_x),
                         piece=self.last_selected_piece.chess_square.piece,
                         captured_piece=self.chess_board.board[square_canvas.position_y][square_canvas.position_x].piece)
-                    print(
+                    print(f"à la cool {
                         self.chess_board.game_moves.add_move(move, self.chess_board.is_check(self.chess_board.turn),
-                                                             self.chess_board.is_checkmate(self.chess_board.turn)))
+                                                             self.chess_board.is_checkmate(self.chess_board.turn))}")
 
                     # et la ça ma mouve hein
                     self.chess_board.move(self.last_selected_piece.chess_square.piece,
                                           (square_canvas.position_y, square_canvas.position_x))
-
                     self.create_board(self.chess_board)
                     self.chess_board.turn = not self.chess_board.turn
 
