@@ -3,6 +3,8 @@ import random
 from src.Models.moves import Move
 from src.Models.piece import Position
 
+from src.Models.moves import Move
+
 
 class ia:
     def __init__(self, board):
@@ -17,10 +19,9 @@ class ia:
             piece=piece,
             captured_piece=board.board[destination[1]][destination[0]].piece)
 
-        print(board.game_moves.add_move(move, board.is_check(self.board.turn),
-                                        board.is_checkmate(board.turn)))
-
         self.board.move(piece, destination[::-1])
+        board.game_moves.add_move(move, board.is_check(board.turn),
+                                  board.is_checkmate(board.turn))
 
     def get_move(self, board, piece_list):
         # without CSV

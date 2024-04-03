@@ -6,7 +6,7 @@ from PIL import Image, ImageTk
 from src.Models import chess_board
 from src.Models.chess_square import ChessSquare
 from src.Models.ia import ia
-from src.Models.moves import Move
+from src.Models.moves import Move, GameMoves
 from src.Models.piece import Piece, PieceType, Position
 
 white_square = "#BED8D2"
@@ -73,25 +73,18 @@ class BoardWindow(tk.Tk):
         self.ia = ia(chess_board)
 
         self.movement_functions = {
-            PieceType.PAWN_WHITE: self.chess_board.pawn_possible_moves,
-            PieceType.PAWN_BLACK: self.chess_board.pawn_possible_moves,
-            PieceType.ROOK_WHITE: self.chess_board.rook_possible_moves,
-            PieceType.ROOK_BLACK: self.chess_board.rook_possible_moves,
-            PieceType.KNIGHT_WHITE: self.chess_board.knight_possible_moves,
-            PieceType.KNIGHT_BLACK: self.chess_board.knight_possible_moves,
-            PieceType.BISHOP_WHITE: self.chess_board.bishop_possible_moves,
-            PieceType.BISHOP_BLACK: self.chess_board.bishop_possible_moves,
-            PieceType.QUEEN_WHITE: self.chess_board.queen_possible_moves,
-            PieceType.QUEEN_BLACK: self.chess_board.queen_possible_moves,
-            PieceType.KING_WHITE: self.chess_board.king_possible_moves,
-            PieceType.KING_BLACK: self.chess_board.king_possible_moves
+            PieceType.PAWN: self.chess_board.pawn_possible_moves,
+            PieceType.ROOK: self.chess_board.rook_possible_moves,
+            PieceType.KNIGHT: self.chess_board.knight_possible_moves,
+            PieceType.BISHOP: self.chess_board.bishop_possible_moves,
+            PieceType.QUEEN: self.chess_board.queen_possible_moves,
+            PieceType.KING: self.chess_board.king_possible_moves
         }
 
         self.new_position = None
         self.last_selected_piece = None
         self.create_menu()
-        df = pd.DataFrame({'A': [9, 50], 'B': [51, 92]}, index=[1, 2])
-        self.create_df_affichage(df)
+        self.create_df_affichage(GameMoves().move_df)
         self.turn_label = tk.Label(self, text=f"Turn: {'White' if self.chess_board.turn else 'Black'}",
                                    font=("Arial", 16))
         self.turn_label.grid(row=0, column=1)
@@ -123,7 +116,7 @@ class BoardWindow(tk.Tk):
         df_label = tk.Label(self.df_frame, text="Dataframe")
         df_label.grid(row=0, column=0)
 
-        self.df_text = tk.Text(self.df_frame, height=50, width=30)
+        self.df_text = tk.Text(self.df_frame, height=50, width=60)
         self.df_text.grid(row=1, column=0)
         self.df_text.insert(tk.END, df.to_string())
         self.df_text.config(state=tk.DISABLED)
@@ -164,25 +157,24 @@ class BoardWindow(tk.Tk):
                         move_position=Position(square_canvas.position_y, square_canvas.position_x),
                         piece=self.last_selected_piece.chess_square.piece,
                         captured_piece=self.chess_board.board[square_canvas.position_y][square_canvas.position_x].piece)
-                    print(f"à la cool {
-                        self.chess_board.game_moves.add_move(move, self.chess_board.is_check(self.chess_board.turn),
-                                                             self.chess_board.is_checkmate(self.chess_board.turn))}")
 
                     # et la ça ma mouve hein
                     self.chess_board.move(self.last_selected_piece.chess_square.piece,
                                           (square_canvas.position_y, square_canvas.position_x))
+
+                    self.chess_board.game_moves.add_move(move, self.chess_board.is_check(self.chess_board.turn),
+                                                         self.chess_board.is_checkmate(self.chess_board.turn))
                     self.create_board(self.chess_board)
+                    self.create_df_affichage(self.chess_board.game_moves.move_df)
                     self.chess_board.turn = not self.chess_board.turn
 
                     if self.is_ia:
                         self.ia.play(self.chess_board, self.chess_board.get_pieces(self.chess_board.turn))
                         self.create_board(self.chess_board)
+                        self.create_df_affichage(self.chess_board.game_moves.move_df)
                         self.chess_board.turn = not self.chess_board.turn
 
         if self.chess_board.is_checkmate(self.chess_board.turn):
-            print(
-                self.chess_board.game_moves.add_move(move, self.chess_board.is_check(self.chess_board.turn),
-                                                     self.chess_board.is_checkmate(self.chess_board.turn)))
             self.chess_board.game_moves.insert_to_scv(move)
 
             checkmate_window = tk.Tk()
@@ -214,17 +206,19 @@ class BoardWindow(tk.Tk):
                 piece_list_white = self.chess_board.get_pieces(True)
                 ia_white.play(self.chess_board, piece_list_white)
                 self.create_board(self.chess_board)
+                self.create_df_affichage(self.chess_board.game_moves.move_df)
                 self.chess_board.turn = not self.chess_board.turn
                 self.update()
-                time.sleep(1)
+                time.sleep(2)
 
             else:
                 piece_list_black = self.chess_board.get_pieces(False)
                 ia_black.play(self.chess_board, piece_list_black)
                 self.create_board(self.chess_board)
+                self.create_df_affichage(self.chess_board.game_moves.move_df)
                 self.chess_board.turn = not self.chess_board.turn
                 self.update()
-                time.sleep(1)
+                time.sleep(2)
 
         if self.chess_board.is_checkmate(True):
             print("Checkmate! Black wins!")
