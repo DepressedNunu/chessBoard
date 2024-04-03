@@ -210,15 +210,15 @@ class BoardWindow(tk.Tk):
 
             move = Move(
                 initial_position=Position(piece.position.x, piece.position.y),
-                move_position=Position(destination[0], destination[1]),
+                move_position=Position(destination[1], destination[0]),
                 piece=piece,
-                captured_piece=self.chess_board.board[destination[1]][destination[0]].piece)
+                captured_piece=self.chess_board.board[destination[0]][destination[1]].piece)
 
             print(self.chess_board.game_moves.add_move(move, self.chess_board.is_check(self.chess_board.turn),
                                                        self.chess_board.is_checkmate(self.chess_board.turn)))
 
             self.update()
-            time.sleep(0.3)
+            time.sleep(0.1)
 
         self.chess_board.game_moves.insert_to_scv(move)
 
