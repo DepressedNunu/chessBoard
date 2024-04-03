@@ -73,18 +73,12 @@ class BoardWindow(tk.Tk):
         self.ia = ia(chess_board)
 
         self.movement_functions = {
-            PieceType.PAWN_WHITE: self.chess_board.pawn_possible_moves,
-            PieceType.PAWN_BLACK: self.chess_board.pawn_possible_moves,
-            PieceType.ROOK_WHITE: self.chess_board.rook_possible_moves,
-            PieceType.ROOK_BLACK: self.chess_board.rook_possible_moves,
-            PieceType.KNIGHT_WHITE: self.chess_board.knight_possible_moves,
-            PieceType.KNIGHT_BLACK: self.chess_board.knight_possible_moves,
-            PieceType.BISHOP_WHITE: self.chess_board.bishop_possible_moves,
-            PieceType.BISHOP_BLACK: self.chess_board.bishop_possible_moves,
-            PieceType.QUEEN_WHITE: self.chess_board.queen_possible_moves,
-            PieceType.QUEEN_BLACK: self.chess_board.queen_possible_moves,
-            PieceType.KING_WHITE: self.chess_board.king_possible_moves,
-            PieceType.KING_BLACK: self.chess_board.king_possible_moves
+            PieceType.PAWN: self.chess_board.pawn_possible_moves,
+            PieceType.ROOK: self.chess_board.rook_possible_moves,
+            PieceType.KNIGHT: self.chess_board.knight_possible_moves,
+            PieceType.BISHOP: self.chess_board.bishop_possible_moves,
+            PieceType.QUEEN: self.chess_board.queen_possible_moves,
+            PieceType.KING: self.chess_board.king_possible_moves,
         }
 
         self.new_position = None
@@ -164,9 +158,8 @@ class BoardWindow(tk.Tk):
                         move_position=Position(square_canvas.position_y, square_canvas.position_x),
                         piece=self.last_selected_piece.chess_square.piece,
                         captured_piece=self.chess_board.board[square_canvas.position_y][square_canvas.position_x].piece)
-                    print(f"à la cool {
-                        self.chess_board.game_moves.add_move(move, self.chess_board.is_check(self.chess_board.turn),
-                                                             self.chess_board.is_checkmate(self.chess_board.turn))}")
+                    print(self.chess_board.game_moves.add_move(move, self.chess_board.is_check(self.chess_board.turn),
+                                                               self.chess_board.is_checkmate(self.chess_board.turn)))
 
                     # et la ça ma mouve hein
                     self.chess_board.move(self.last_selected_piece.chess_square.piece,
@@ -206,25 +199,28 @@ class BoardWindow(tk.Tk):
             self.highlight_squares()
 
     def ia_vs_ia(self):
-        ia_white = ia(self.chess_board)
-        ia_black = ia(self.chess_board)
+        ia_color = ia(self.chess_board)
+        move = None
 
         while not self.chess_board.is_checkmate(True) and not self.chess_board.is_checkmate(False):
-            if self.chess_board.turn:
-                piece_list_white = self.chess_board.get_pieces(True)
-                ia_white.play(self.chess_board, piece_list_white)
-                self.create_board(self.chess_board)
-                self.chess_board.turn = not self.chess_board.turn
-                self.update()
-                time.sleep(1)
+            piece_list = self.chess_board.get_pieces(self.chess_board.turn)
+            piece, destination = ia_color.play(self.chess_board, piece_list)
+            self.create_board(self.chess_board)
+            self.chess_board.turn = not self.chess_board.turn
 
-            else:
-                piece_list_black = self.chess_board.get_pieces(False)
-                ia_black.play(self.chess_board, piece_list_black)
-                self.create_board(self.chess_board)
-                self.chess_board.turn = not self.chess_board.turn
-                self.update()
-                time.sleep(1)
+            move = Move(
+                initial_position=Position(piece.position.x, piece.position.y),
+                move_position=Position(destination[0], destination[1]),
+                piece=piece,
+                captured_piece=self.chess_board.board[destination[1]][destination[0]].piece)
+
+            print(self.chess_board.game_moves.add_move(move, self.chess_board.is_check(self.chess_board.turn),
+                                                       self.chess_board.is_checkmate(self.chess_board.turn)))
+
+            self.update()
+            time.sleep(0.3)
+
+        self.chess_board.game_moves.insert_to_scv(move)
 
         if self.chess_board.is_checkmate(True):
             print("Checkmate! Black wins!")

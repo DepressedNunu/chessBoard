@@ -10,17 +10,8 @@ class ia:
 
     def play(self, board, piece_list):
         piece, destination = self.get_move(board, piece_list)
-
-        move = Move(
-            initial_position=Position(piece.position.x, piece.position.y),
-            move_position=Position(destination[0], destination[1]),
-            piece=piece,
-            captured_piece=board.board[destination[1]][destination[0]].piece)
-
-        print(board.game_moves.add_move(move, board.is_check(self.board.turn),
-                                        board.is_checkmate(board.turn)))
-
         self.board.move(piece, destination[::-1])
+        return piece, destination
 
     def get_move(self, board, piece_list):
         # without CSV
