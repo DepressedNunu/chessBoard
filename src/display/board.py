@@ -147,7 +147,6 @@ class BoardWindow(tk.Tk):
             self.last_selected_piece.is_highlighted = False  # Unselect the last piece
             self.last_selected_piece.config(
                 background=set_color(self.last_selected_piece.position_x, self.last_selected_piece.position_y))
-            print(self.possible_moves_list)
             if self.possible_moves_list:
                 if (square_canvas.position_y, square_canvas.position_x) in self.possible_moves_list:
                     # a ce moment on save le coup de con
@@ -157,13 +156,12 @@ class BoardWindow(tk.Tk):
                         move_position=Position(square_canvas.position_y, square_canvas.position_x),
                         piece=self.last_selected_piece.chess_square.piece,
                         captured_piece=self.chess_board.board[square_canvas.position_y][square_canvas.position_x].piece)
+                    print(self.chess_board.game_moves.add_move(move, self.chess_board.is_check(self.chess_board.turn),
+                                                               self.chess_board.is_checkmate(self.chess_board.turn)))
 
                     # et la ça ma mouve hein
                     self.chess_board.move(self.last_selected_piece.chess_square.piece,
                                           (square_canvas.position_y, square_canvas.position_x))
-
-                    self.chess_board.game_moves.add_move(move, self.chess_board.is_check(self.chess_board.turn),
-                                                         self.chess_board.is_checkmate(self.chess_board.turn))
                     self.create_board(self.chess_board)
                     self.create_df_affichage(self.chess_board.game_moves.move_df)
                     self.chess_board.turn = not self.chess_board.turn
