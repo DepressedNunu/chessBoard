@@ -166,8 +166,8 @@ class BoardWindow(tk.Tk):
                     self.create_df_affichage(self.chess_board.game_moves.move_df)
                     self.chess_board.turn = not self.chess_board.turn
 
-                    if self.is_ia:
-                        self.ia.play(self.chess_board, self.chess_board.get_pieces(self.chess_board.turn))
+                    if self.is_ia and not self.chess_board.is_checkmate(self.chess_board.turn):
+                        self.ia.play(self.chess_board)
                         self.create_board(self.chess_board)
                         self.create_df_affichage(self.chess_board.game_moves.move_df)
                         self.chess_board.turn = not self.chess_board.turn
@@ -200,12 +200,12 @@ class BoardWindow(tk.Tk):
 
         while not self.chess_board.is_checkmate(self.chess_board.turn):
             piece_list = self.chess_board.get_pieces(self.chess_board.turn)
-            _ia.play(self.chess_board, piece_list)
+            _ia.play(self.chess_board)
             self.create_board(self.chess_board)
             self.create_df_affichage(self.chess_board.game_moves.move_df)
             self.chess_board.turn = not self.chess_board.turn
             self.update()
-            time.sleep(1)
+            time.sleep(0.1)
 
         self.chess_board.game_moves.insert_to_scv(not self.chess_board.turn)
 
