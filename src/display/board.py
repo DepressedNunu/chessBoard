@@ -175,7 +175,7 @@ class BoardWindow(tk.Tk):
                         self.chess_board.turn = not self.chess_board.turn
 
         if self.chess_board.is_checkmate(self.chess_board.turn):
-            self.chess_board.game_moves.insert_to_scv(move)
+            self.chess_board.game_moves.insert_to_scv(not self.chess_board.turn)
 
             checkmate_window = tk.Tk()
             checkmate_window.title("Checkmate")
@@ -207,7 +207,9 @@ class BoardWindow(tk.Tk):
             self.create_df_affichage(self.chess_board.game_moves.move_df)
             self.chess_board.turn = not self.chess_board.turn
             self.update()
-            time.sleep(2)
+            time.sleep(1)
+
+        self.chess_board.game_moves.insert_to_scv(not self.chess_board.turn)
 
         if self.chess_board.is_checkmate(True):
             print("Checkmate! Black wins!")
