@@ -198,27 +198,16 @@ class BoardWindow(tk.Tk):
             self.highlight_squares()
 
     def ia_vs_ia(self):
-        ia_white = ia(self.chess_board)
-        ia_black = ia(self.chess_board)
+        _ia = ia(self.chess_board)
 
-        while not self.chess_board.is_checkmate(True) and not self.chess_board.is_checkmate(False):
-            if self.chess_board.turn:
-                piece_list_white = self.chess_board.get_pieces(True)
-                ia_white.play(self.chess_board, piece_list_white)
-                self.create_board(self.chess_board)
-                self.create_df_affichage(self.chess_board.game_moves.move_df)
-                self.chess_board.turn = not self.chess_board.turn
-                self.update()
-                time.sleep(2)
-
-            else:
-                piece_list_black = self.chess_board.get_pieces(False)
-                ia_black.play(self.chess_board, piece_list_black)
-                self.create_board(self.chess_board)
-                self.create_df_affichage(self.chess_board.game_moves.move_df)
-                self.chess_board.turn = not self.chess_board.turn
-                self.update()
-                time.sleep(2)
+        while not self.chess_board.is_checkmate(self.chess_board.turn):
+            piece_list = self.chess_board.get_pieces(self.chess_board.turn)
+            _ia.play(self.chess_board, piece_list)
+            self.create_board(self.chess_board)
+            self.create_df_affichage(self.chess_board.game_moves.move_df)
+            self.chess_board.turn = not self.chess_board.turn
+            self.update()
+            time.sleep(2)
 
         if self.chess_board.is_checkmate(True):
             print("Checkmate! Black wins!")
